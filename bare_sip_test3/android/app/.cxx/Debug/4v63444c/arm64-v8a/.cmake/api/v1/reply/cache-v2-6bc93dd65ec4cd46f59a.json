@@ -1254,6 +1254,18 @@
 			"value" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/4v63444c/arm64-v8a"
 		},
 		{
+			"name" : "baresip_ffi_LIB_DEPENDS",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Dependencies for the target"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "general;baresip;general;/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/21/liblog.so;"
+		},
+		{
 			"name" : "baresip_ffi_SOURCE_DIR",
 			"properties" : 
 			[
@@ -1264,6 +1276,18 @@
 			],
 			"type" : "STATIC",
 			"value" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp"
+		},
+		{
+			"name" : "log-lib",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a library."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/21/liblog.so"
 		}
 	],
 	"kind" : "cache",

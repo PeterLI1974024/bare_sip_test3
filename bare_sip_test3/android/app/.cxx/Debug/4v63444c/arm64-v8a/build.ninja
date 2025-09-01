@@ -70,6 +70,7 @@ build CMakeFiles/baresip_ffi.dir/baresip_ffi.c.o: C_COMPILER__baresip_ffi_Debug 
   DEFINES = -Dbaresip_ffi_EXPORTS
   DEP_FILE = CMakeFiles/baresip_ffi.dir/baresip_ffi.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC
+  INCLUDES = -I/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/native/baresip/include -I/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/native/re/include -I/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/native/rem/include
   OBJECT_DIR = CMakeFiles/baresip_ffi.dir
   OBJECT_FILE_DIR = CMakeFiles/baresip_ffi.dir
 
@@ -81,10 +82,10 @@ build CMakeFiles/baresip_ffi.dir/baresip_ffi.c.o: C_COMPILER__baresip_ffi_Debug 
 #############################################
 # Link the shared library /Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/Debug/4v63444c/obj/arm64-v8a/libbaresip_ffi.so
 
-build /Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/Debug/4v63444c/obj/arm64-v8a/libbaresip_ffi.so: C_SHARED_LIBRARY_LINKER__baresip_ffi_Debug CMakeFiles/baresip_ffi.dir/baresip_ffi.c.o
+build /Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/Debug/4v63444c/obj/arm64-v8a/libbaresip_ffi.so: C_SHARED_LIBRARY_LINKER__baresip_ffi_Debug CMakeFiles/baresip_ffi.dir/baresip_ffi.c.o | /Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../jniLibs/arm64-v8a/libbaresip.so /Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/21/liblog.so
   LANGUAGE_COMPILE_FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info
   LINK_FLAGS = -static-libstdc++ -Wl,--build-id=sha1 -Wl,--no-rosegment -Wl,--fatal-warnings -Wl,--no-undefined -Qunused-arguments
-  LINK_LIBRARIES = -latomic -lm
+  LINK_LIBRARIES = /Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../jniLibs/arm64-v8a/libbaresip.so  -llog  -latomic -lm
   OBJECT_DIR = CMakeFiles/baresip_ffi.dir
   POST_BUILD = :
   PRE_LINK = :

@@ -22,7 +22,9 @@
       "abi": "arm64-v8a",
       "artifactName": "baresip_ffi",
       "output": "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/Debug/4v63444c/obj/arm64-v8a/libbaresip_ffi.so",
-      "runtimeFiles": []
+      "runtimeFiles": [
+        "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/jniLibs/arm64-v8a/libbaresip.so"
+      ]
     }
   },
   "toolchains": {
