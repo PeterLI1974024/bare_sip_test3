@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.10.2)
+project(baresip_ffi)
+
+add_library(baresip_ffi SHARED baresip_ffi.c)
+
+# 暫時不需要 include_directories 和 target_link_libraries
