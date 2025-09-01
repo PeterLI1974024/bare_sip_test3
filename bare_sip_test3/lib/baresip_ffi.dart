@@ -144,16 +144,19 @@ void uaHangup(ffi.Pointer<ffi.Void> ua, ffi.Pointer<ffi.Void> call, {int err = 0
 /// ======================
 
 // typedef void (bevent_h)(const struct bevent *ev, void *arg);
+// typedef void (bevent_h)(const struct bevent *ev, void *arg);
 typedef _CBeventHandler = ffi.Void Function(
-  ffi.Pointer<ffi.Void>, // bevent*
-  ffi.Pointer<ffi.Void>, // arg
+  ffi.Pointer<ffi.Void>, // const struct bevent* ev
+  ffi.Pointer<ffi.Void>, // void* arg
 );
+
+// Dart callback signature
 typedef _DBeventHandler = void Function(
   ffi.Pointer<ffi.Void>,
   ffi.Pointer<ffi.Void>,
 );
 
-// void bevent_register_handler(bevent_h *h, void *arg);
+// bevent_register_handler(bevent_h *h, void *arg);
 typedef _CBeventRegister = ffi.Void Function(
   ffi.Pointer<ffi.NativeFunction<_CBeventHandler>>,
   ffi.Pointer<ffi.Void>,
@@ -162,9 +165,33 @@ typedef _DBeventRegister = void Function(
   ffi.Pointer<ffi.NativeFunction<_CBeventHandler>>,
   ffi.Pointer<ffi.Void>,
 );
-final _beventRegister = _lib.lookupFunction<_CBeventRegister, _DBeventRegister>('bevent_register_handler');
 
-// Dart 封裝：註冊事件 callback
-void beventRegister(ffi.Pointer<ffi.NativeFunction<_CBeventHandler>> cb, ffi.Pointer<ffi.Void> arg) {
+final _beventRegister = _lib.lookupFunction<_CBeventRegister, _DBeventRegister>(
+  'bevent_register_handler',
+);
+
+void beventRegister(
+  ffi.Pointer<ffi.NativeFunction<_CBeventHandler>> cb,
+  ffi.Pointer<ffi.Void> arg,
+) {
   _beventRegister(cb, arg);
 }
+
+// int conf_path_set(const char* path);
+typedef _CConfPathSet = ffi.Int32 Function(ffi.Pointer<Utf8>);
+typedef _DConfPathSet = int Function(ffi.Pointer<Utf8>);
+
+final _confPathSet = _lib.lookupFunction<_CConfPathSet, _DConfPathSet>('conf_path_set');
+
+int confPathSet(String path) {
+  final p = path.toNativeUtf8();
+  try {
+    return _confPathSet(p);
+  } finally {
+    calloc.free(p);
+  }
+}
+
+
+// typedef void (bevent_h)(const struct bevent *ev, void *arg);
+
