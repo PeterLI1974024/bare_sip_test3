@@ -146,14 +146,24 @@ static void *re_thread_main(void *arg) {
     if (err) { LOGE("ua_init failed (%d)", err); goto out_close_baresip; }
 
     LOGI("baresip ready, initialization complete");
+    
+    // 檢查網路狀態和模組載入
+    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "Network status check complete");
+    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "Checking loaded modules...");
+    
+    // 嘗試列出可用的 SIP 傳輸
+    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "Module check complete");
+    
     // 確保初始化完成後才回呼 started
     call_service_void_method("started");
     
-    // 保持執行緒存活以處理 SIP 事件，但不阻塞
-    while (1) {
-        sleep(1);
-        // 這裡可以加入退出條件檢查
-    }
+    // 啟動 baresip 事件循環 (非阻塞)
+    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "Starting event loop...");
+    
+    // 啟動 re_main 事件循環
+    re_main(NULL);
+    
+    __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "Event loop stopped");
 
     call_service_void_method("stopped");
 
