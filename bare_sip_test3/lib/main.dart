@@ -11,6 +11,7 @@ class Demo extends StatefulWidget {
 
 class _DemoState extends State<Demo> {
   static const _channel = MethodChannel("baresip");
+
   String log = "";
 
   Future<void> _startNative() async {
@@ -54,9 +55,13 @@ class _DemoState extends State<Demo> {
     _channel.setMethodCallHandler((call) async {
       if (call.method == "started") {
         setState(() => log += "== Baresip 已啟動 ==\n");
+        // 自動註冊，避免卡在啟動後無互動
+        await _register();
       } else if (call.method == "ua_event") {
         final args = call.arguments as Map;
         setState(() => log += "== UA Event == ${args["event"]}\n");
+      } else if (call.method == "stopped") {
+        setState(() => log += "== Baresip 已停止 ==\n");
       }
     });
   }

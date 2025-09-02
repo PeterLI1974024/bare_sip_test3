@@ -1,5 +1,6 @@
 package com.example.bare_sip_test3
 
+import android.content.Intent
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
@@ -12,7 +13,6 @@ class BaresipPlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
     private lateinit var channel : MethodChannel
 
     private var uaPtr: Long = 0L
-    private var callPtr: Long = 0L
 
     override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "baresip")
@@ -24,7 +24,8 @@ class BaresipPlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: MethodChannel.Result) {
         when (call.method) {
             "baresip_start" -> {
-                BaresipService.baresipStart("/sdcard/", "", 5, "flutter_sip")
+                val intent = Intent(null, BaresipService::class.java)
+                intent.action = "Start"
                 result.success(0)
             }
             "ua_register" -> {
@@ -43,11 +44,7 @@ class BaresipPlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
             "call_connect" -> {
                 val target = call.argument<String>("target") ?: return result.error("ARG", "missing target", null)
                 if (uaPtr == 0L) return result.error("UA", "ua not allocated", null)
-                if (callPtr == 0L) {
-                    callPtr = Api.ua_call_alloc(uaPtr, 0L, 1)
-                    if (callPtr == 0L) return result.error("CALL", "ua_call_alloc failed", null)
-                }
-                val ret = Api.call_connect(callPtr, target)
+                val ret = Api.ua_connect(uaPtr, target)
                 result.success(ret)
             }
             else -> result.notImplemented()
