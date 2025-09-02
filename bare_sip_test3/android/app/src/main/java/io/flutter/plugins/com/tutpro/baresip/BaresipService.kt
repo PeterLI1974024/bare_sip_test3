@@ -51,7 +51,10 @@ class BaresipService : Service() {
     @Suppress("unused")
     fun started() {
         Log.d("Baresip", "native 回呼 started()")
-        eventChannel?.invokeMethod("started", null)
+        // 確保在主執行緒中執行 Flutter 回呼
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            eventChannel?.invokeMethod("started", null)
+        }
     }
 
     @Keep
@@ -59,14 +62,18 @@ class BaresipService : Service() {
     fun uaEvent(event: String, uap: Long, callp: Long) {
         Log.d("Baresip", "native uaEvent event=$event ua=$uap call=$callp")
         val args = mapOf("event" to event, "uap" to uap, "callp" to callp)
-        eventChannel?.invokeMethod("ua_event", args)
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            eventChannel?.invokeMethod("ua_event", args)
+        }
     }
 
     @Keep
     @Suppress("unused")
     fun stopped(error: String) {
         Log.d("Baresip", "native stopped, error=$error")
-        eventChannel?.invokeMethod("stopped", error)
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            eventChannel?.invokeMethod("stopped", error)
+        }
         isServiceRunning = false
         stopSelf()
     }

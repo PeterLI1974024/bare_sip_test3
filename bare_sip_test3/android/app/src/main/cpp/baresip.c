@@ -26,23 +26,40 @@ int ua_register(void *ua);
 int ua_connect(void *ua, void **callp, const char *from_uri, const char *req_uri, int vmode);
 
 // JNI bridge for UA operations via baresip_ffi
-JNIEXPORT jlong JNICALL Java_com_tutpro_baresip_Api_ua_1alloc(JNIEnv *env, jclass cls, jstring jUri) {
+JNIEXPORT jlong JNICALL Java_com_tutpro_baresip_Api_ua_1alloc(
+        JNIEnv *env, jclass cls, jstring jUri) {
     (void)cls;
     if (!jUri) return 0;
+
     const char *uri = (*env)->GetStringUTFChars(env, jUri, 0);
-    void *ua = NULL;
+    __android_log_print(ANDROID_LOG_INFO, "JNI", "[C] ua_alloc 被呼叫, uri=%s", uri);
+
+    struct ua *ua = NULL;
     int err = ua_alloc(&ua, uri);
     (*env)->ReleaseStringUTFChars(env, jUri, uri);
-    if (err || !ua) return 0;
+
+    if (err || !ua) {
+        __android_log_print(ANDROID_LOG_ERROR, "JNI", "[C] ua_alloc 失敗 err=%d", err);
+        return 0;
+    }
+
+    __android_log_print(ANDROID_LOG_INFO, "JNI", "[C] ua_alloc 成功, ua=%p", ua);
     return (jlong)(intptr_t)ua;
 }
 
-JNIEXPORT jint JNICALL Java_com_tutpro_baresip_Api_ua_1register(JNIEnv *env, jclass cls, jlong uap) {
+JNIEXPORT jint JNICALL Java_com_tutpro_baresip_Api_ua_1register(
+        JNIEnv *env, jclass cls, jlong uaPtr) {
     (void)env; (void)cls;
-    void *ua = (void*)(intptr_t)uap;
-    if (!ua) return -1;
-    return ua_register(ua);
+    __android_log_print(ANDROID_LOG_INFO, "JNI", "[C] ua_register 被呼叫, uaPtr=%ld", (long)uaPtr);
+
+    re_thread_enter();
+    int res = ua_register((struct ua *)uaPtr);
+    re_thread_leave();
+
+    __android_log_print(ANDROID_LOG_INFO, "JNI", "[C] ua_register 回傳 %d", res);
+    return res;
 }
+
 
 JNIEXPORT jint JNICALL Java_com_tutpro_baresip_Api_ua_1connect(JNIEnv *env, jclass cls, jlong uap, jstring jPeer) {
     (void)cls;
@@ -64,15 +81,48 @@ typedef struct {
 } StartArgs;
 
 static void call_service_void_method(const char *name) {
-    if (!g_vm || !g_service) return;
-    JNIEnv *env = NULL;
-    if ((*g_vm)->AttachCurrentThread(g_vm, &env, NULL) != 0 || !env) return;
-    jclass cls = (*env)->GetObjectClass(env, g_service);
-    if (!cls) return;
-    jmethodID mid = (*env)->GetMethodID(env, cls, name, "()V");
-    if (mid) {
-        (*env)->CallVoidMethod(env, g_service, mid);
+    if (!g_vm || !g_service) {
+        LOGE("call_service_void_method: g_vm=%p g_service=%p", g_vm, g_service);
+        return;
     }
+    
+    JNIEnv *env = NULL;
+    jint result = (*g_vm)->AttachCurrentThread(g_vm, &env, NULL);
+    if (result != JNI_OK || !env) {
+        LOGE("call_service_void_method: AttachCurrentThread failed with %d", result);
+        return;
+    }
+    
+    LOGI("call_service_void_method: attached to thread, calling %s", name);
+    
+    jclass cls = (*env)->GetObjectClass(env, g_service);
+    if (!cls) {
+        LOGE("call_service_void_method: GetObjectClass failed");
+        (*g_vm)->DetachCurrentThread(g_vm);
+        return;
+    }
+    
+    jmethodID mid = (*env)->GetMethodID(env, cls, name, "()V");
+    if (!mid) {
+        LOGE("call_service_void_method: GetMethodID failed for %s", name);
+        (*env)->DeleteLocalRef(env, cls);
+        (*g_vm)->DetachCurrentThread(g_vm);
+        return;
+    }
+    
+    LOGI("call_service_void_method: calling method %s", name);
+    (*env)->CallVoidMethod(env, g_service, mid);
+    
+    if ((*env)->ExceptionCheck(env)) {
+        LOGE("call_service_void_method: Exception occurred calling %s", name);
+        (*env)->ExceptionDescribe(env);
+        (*env)->ExceptionClear(env);
+    } else {
+        LOGI("call_service_void_method: %s called successfully", name);
+    }
+    
+    (*env)->DeleteLocalRef(env, cls);
+    (*g_vm)->DetachCurrentThread(g_vm);
 }
 
 static void *re_thread_main(void *arg) {
@@ -95,11 +145,15 @@ static void *re_thread_main(void *arg) {
     err = ua_init(a->software ? a->software : "baresip", 1, 1, 1);
     if (err) { LOGE("ua_init failed (%d)", err); goto out_close_baresip; }
 
-    // Signal started to Kotlin service
+    LOGI("baresip ready, initialization complete");
+    // 確保初始化完成後才回呼 started
     call_service_void_method("started");
-
-    LOGI("baresip ready, not starting main loop to avoid blocking...");
-    // 不啟動 re_main 避免阻塞，baresip 初始化完成即可使用
+    
+    // 保持執行緒存活以處理 SIP 事件，但不阻塞
+    while (1) {
+        sleep(1);
+        // 這裡可以加入退出條件檢查
+    }
 
     call_service_void_method("stopped");
 

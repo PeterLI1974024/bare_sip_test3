@@ -25,20 +25,23 @@ class _DemoState extends State<Demo> {
 
   Future<void> _register() async {
     try {
-      final ret = await _channel.invokeMethod<int>("ua_register", {
+      debugPrint("[Flutter] 呼叫 ua_register...");
+      final ret = await _channel.invokeMethod<num>("ua_register", {
         "aor": "sip:2204@stage.twmfspbx.taiwanmobile.com",
         "authUser": "2204",
         "authPass": "Twm09350935",
       });
+      debugPrint("[Flutter] ua_register 回傳=$ret");
       setState(() => log += "ua_register result=$ret\n");
     } catch (e) {
+      debugPrint("[Flutter] ua_register 發生錯誤: $e");
       setState(() => log += "ua_register error: $e\n");
     }
   }
 
   Future<void> _call() async {
     try {
-      final ret = await _channel.invokeMethod<int>("call_connect", {
+      final ret = await _channel.invokeMethod<num>("call_connect", {
         "target": "sip:2205@stage.twmfspbx.taiwanmobile.com",
       });
       setState(() => log += "call_connect result=$ret\n");
@@ -55,7 +58,8 @@ class _DemoState extends State<Demo> {
     _channel.setMethodCallHandler((call) async {
       if (call.method == "started") {
         setState(() => log += "== Baresip 已啟動 ==\n");
-        // 自動註冊，避免卡在啟動後無互動
+        // 等待一秒讓 baresip 完全初始化後再註冊
+        await Future.delayed(Duration(seconds: 1));
         await _register();
       } else if (call.method == "ua_event") {
         final args = call.arguments as Map;

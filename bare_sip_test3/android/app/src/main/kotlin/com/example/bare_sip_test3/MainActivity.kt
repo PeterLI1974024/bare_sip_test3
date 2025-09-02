@@ -36,36 +36,47 @@ class MainActivity : FlutterActivity() {
                         ?: return@setMethodCallHandler result.error("ARG", "missing aor", null)
                     uaPtr = Api.ua_alloc(aor)
                     Log.d("Baresip", "ua_alloc($aor) => $uaPtr")
-                    result.success(uaPtr.toInt())
+                    result.success(uaPtr)
                 }
 
-                "ua_register" -> {
-                    val aor = call.argument<String>("aor")
-                        ?: return@setMethodCallHandler result.error("ARG", "missing aor", null)
-                    val authUser = call.argument<String>("authUser") ?: ""
-                    val authPass = call.argument<String>("authPass") ?: ""
-                    if (uaPtr == 0L) {
-                        val uri = buildString {
-                            append('<')
-                            append(aor)
-                            append('>')
-                            if (authUser.isNotEmpty()) {
-                                append(";auth_user=")
-                                append(authUser)
-                            }
-                            if (authPass.isNotEmpty()) {
-                                append(";auth_pass=")
-                                append(authPass)
-                            }
-                        }
-                        uaPtr = Api.ua_alloc(uri)
-                        if (uaPtr == 0L) return@setMethodCallHandler result.error("UA", "ua_alloc failed", null)
-                        Log.d("Baresip", "ua_alloc($uri) => $uaPtr")
-                    }
-                    val code = Api.ua_register(uaPtr)
-                    Log.d("Baresip", "ua_register => $code")
-                    result.success(code)
-                }
+               "ua_register" -> {
+    Log.d("Baresip", "[Kotlin] 進入 ua_register handler")
+
+    val aor = call.argument<String>("aor")
+        ?: return@setMethodCallHandler result.error("ARG", "missing aor", null)
+    val authUser = call.argument<String>("authUser") ?: ""
+    val authPass = call.argument<String>("authPass") ?: ""
+
+    if (uaPtr == 0L) {
+        val uri = buildString {
+            append('<')
+            append(aor)
+            append('>')
+            if (authUser.isNotEmpty()) {
+                append(";auth_user=")
+                append(authUser)
+            }
+            if (authPass.isNotEmpty()) {
+                append(";auth_pass=")
+                append(authPass)
+            }
+        }
+        Log.d("Baresip", "[Kotlin] before ua_alloc($uri)")
+        uaPtr = Api.ua_alloc(uri)
+        Log.d("Baresip", "[Kotlin] after ua_alloc => $uaPtr")
+
+        if (uaPtr == 0L) {
+            Log.e("Baresip", "[Kotlin] ua_alloc 失敗")
+            return@setMethodCallHandler result.error("UA", "ua_alloc failed", null)
+        }
+    }
+
+    Log.d("Baresip", "[Kotlin] 呼叫 ua_register($uaPtr)")
+    val code = Api.ua_register(uaPtr)
+    Log.d("Baresip", "[Kotlin] ua_register 回傳 => $code")
+    result.success(code)
+}
+
 
                 "call_connect" -> {
                     val target = call.argument<String>("target")

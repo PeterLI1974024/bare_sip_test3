@@ -1,5 +1,6 @@
 package com.example.bare_sip_test3
 
+import android.content.Context
 import android.content.Intent
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -11,12 +12,14 @@ import com.tutpro.baresip.BaresipService
 class BaresipPlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
 
     private lateinit var channel : MethodChannel
+    private lateinit var context: Context
 
     private var uaPtr: Long = 0L
 
     override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "baresip")
         channel.setMethodCallHandler(this)
+        context = binding.applicationContext
         // 將事件通道交給服務
         BaresipService.eventChannel = channel
     }
@@ -24,8 +27,10 @@ class BaresipPlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: MethodChannel.Result) {
         when (call.method) {
             "baresip_start" -> {
-                val intent = Intent(null, BaresipService::class.java)
+                val intent = Intent(context, BaresipService::class.java)
                 intent.action = "Start"
+                context.startService(intent)
+                android.util.Log.d("Baresip", "Starting BaresipService")
                 result.success(0)
             }
             "ua_register" -> {
@@ -33,10 +38,11 @@ class BaresipPlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
                 val authUser = call.argument<String>("authUser") ?: ""
                 val authPass = call.argument<String>("authPass") ?: ""
                 if (uaPtr == 0L) {
-                    // 將密碼以 ;auth_pass 附加到 AOR（auth_user 若非空可在 params 中指定）
-                    val uri = if (authPass.isNotEmpty()) "<$aor>;auth_pass=$authPass" else "<$aor>"
+                    // 使用純 AOR，不加 <> 包裝
+                    val uri = if (authPass.isNotEmpty()) "$aor;auth_pass=$authPass" else aor
                     uaPtr = Api.ua_alloc(uri)
                     if (uaPtr == 0L) return result.error("UA", "ua_alloc failed", null)
+                    android.util.Log.d("Baresip", "ua_alloc($uri) => $uaPtr")
                 }
                 val ret = Api.ua_register(uaPtr)
                 result.success(ret)
