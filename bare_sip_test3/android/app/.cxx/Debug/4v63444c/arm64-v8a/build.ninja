@@ -70,7 +70,7 @@ build CMakeFiles/baresip_ffi.dir/baresip.c.o: C_COMPILER__baresip_ffi_Debug /Use
   DEFINES = -Dbaresip_ffi_EXPORTS
   DEP_FILE = CMakeFiles/baresip_ffi.dir/baresip.c.o.d
   FLAGS = -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC
-  INCLUDES = -I/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../../../../native/re/include -I/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../../../../native/rem/include -I/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../../../../native/baresip/include
+  INCLUDES = -I/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../../../../../native/re/include -I/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../../../../../native/rem/include -I/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../../../../../native/baresip/include
   OBJECT_DIR = CMakeFiles/baresip_ffi.dir
   OBJECT_FILE_DIR = CMakeFiles/baresip_ffi.dir
 

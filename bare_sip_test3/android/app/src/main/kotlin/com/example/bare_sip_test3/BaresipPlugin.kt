@@ -4,29 +4,50 @@ import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import com.tutpro.baresip.Api   // 匯入剛剛的 Api.kt
+import com.tutpro.baresip.Api
+import com.tutpro.baresip.BaresipService
 
 class BaresipPlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
 
     private lateinit var channel : MethodChannel
 
+    private var uaPtr: Long = 0L
+    private var callPtr: Long = 0L
+
     override fun onAttachedToEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "baresip")
         channel.setMethodCallHandler(this)
+        // 將事件通道交給服務
+        BaresipService.eventChannel = channel
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: MethodChannel.Result) {
         when (call.method) {
+            "baresip_start" -> {
+                BaresipService.baresipStart("/sdcard/", "", 5, "flutter_sip")
+                result.success(0)
+            }
             "ua_register" -> {
                 val aor = call.argument<String>("aor") ?: return result.error("ARG", "missing aor", null)
                 val authUser = call.argument<String>("authUser") ?: ""
                 val authPass = call.argument<String>("authPass") ?: ""
-                val ret = Api.ua_register(aor, authUser, authPass) // 呼叫 JNI
+                if (uaPtr == 0L) {
+                    // 將密碼以 ;auth_pass 附加到 AOR（auth_user 若非空可在 params 中指定）
+                    val uri = if (authPass.isNotEmpty()) "<$aor>;auth_pass=$authPass" else "<$aor>"
+                    uaPtr = Api.ua_alloc(uri)
+                    if (uaPtr == 0L) return result.error("UA", "ua_alloc failed", null)
+                }
+                val ret = Api.ua_register(uaPtr)
                 result.success(ret)
             }
             "call_connect" -> {
                 val target = call.argument<String>("target") ?: return result.error("ARG", "missing target", null)
-                val ret = Api.call_connect(target) // 呼叫 JNI
+                if (uaPtr == 0L) return result.error("UA", "ua not allocated", null)
+                if (callPtr == 0L) {
+                    callPtr = Api.ua_call_alloc(uaPtr, 0L, 1)
+                    if (callPtr == 0L) return result.error("CALL", "ua_call_alloc failed", null)
+                }
+                val ret = Api.call_connect(callPtr, target)
                 result.success(ret)
             }
             else -> result.notImplemented()

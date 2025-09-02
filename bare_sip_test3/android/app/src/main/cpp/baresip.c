@@ -1,9 +1,16 @@
 #include <jni.h>
 #include <stdbool.h>
-#include <re.h>
-#include <rem.h>
-#include <baresip.h>
 #include <android/log.h>
+
+// Forward declarations to avoid pulling mismatched headers
+int libre_init(void);
+void libre_close(void);
+int baresip_init(void *cfg);
+void baresip_close(void);
+int ua_init(const char *software, int aumode, int vumode, int dumode);
+void ua_close(void);
+void re_main(void *arg);
+void *conf_config(void);
 
 #define LOG_TAG "baresip_jni"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -32,7 +39,7 @@ Java_com_tutpro_baresip_BaresipService_baresipStart(
         goto out;
     }
 
-    err = ua_init(software, true, true, true);  // use <stdbool.h>
+    err = ua_init(software, 1, 1, 1);
     if (err) {
         LOGE("ua_init failed (%d)", err);
         goto out;

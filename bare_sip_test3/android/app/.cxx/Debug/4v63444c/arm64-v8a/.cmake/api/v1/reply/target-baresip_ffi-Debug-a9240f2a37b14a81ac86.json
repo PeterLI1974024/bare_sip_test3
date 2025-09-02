@@ -62,15 +62,15 @@
 			[
 				{
 					"backtrace" : 3,
-					"path" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../../../../native/re/include"
+					"path" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../../../../../native/re/include"
 				},
 				{
 					"backtrace" : 3,
-					"path" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../../../../native/rem/include"
+					"path" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../../../../../native/rem/include"
 				},
 				{
 					"backtrace" : 3,
-					"path" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../../../../native/baresip/include"
+					"path" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/../../../../../native/baresip/include"
 				}
 			],
 			"language" : "C",
