@@ -27,8 +27,8 @@ class _DemoState extends State<Demo> {
     try {
       debugPrint("[Flutter] 呼叫 ua_register...");
       final ret = await _channel.invokeMethod<num>("ua_register", {
-        "aor": "sip:stage.twmfspbx.taiwanmobile.com",
-        "authUser": "2204@e003539",
+        "aor": "sip:2204@stage.twmfspbx.taiwanmobile.com:5091;transport=tls;mediaenc=srtp",
+        "authUser": "2204@e003539", // ← 這裡填伺服器要求的帳號格式
         "authPass": "Twm09350935",
       });
       debugPrint("[Flutter] ua_register 回傳=$ret");
