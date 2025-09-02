@@ -1,35 +1,26 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(baresip_ffi)
 
-# 建 wrapper
-add_library(baresip_ffi SHARED baresip_ffi.c)
+add_library(baresip_ffi SHARED baresip.c)
 
-# 指向 headers (請依你實際路徑調整)
 include_directories(
-    ${CMAKE_SOURCE_DIR}/native/baresip/include
-    ${CMAKE_SOURCE_DIR}/native/re/include
-    ${CMAKE_SOURCE_DIR}/native/rem/include
+    ${CMAKE_SOURCE_DIR}/../../../../native/re/include
+    ${CMAKE_SOURCE_DIR}/../../../../native/rem/include
+    ${CMAKE_SOURCE_DIR}/../../../../native/baresip/include
 )
 
-# 告訴 CMake 去 jniLibs 找已經放好的 .so
-set(distribution_DIR ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
+set(JNI_LIBS_DIR ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
 
 add_library(baresip SHARED IMPORTED)
-set_target_properties(baresip PROPERTIES IMPORTED_LOCATION
-    ${distribution_DIR}/libbaresip.so)
-
-add_library(rem SHARED IMPORTED)
-set_target_properties(rem PROPERTIES IMPORTED_LOCATION
-    ${distribution_DIR}/librem.so)
-
-add_library(re SHARED IMPORTED)
-set_target_properties(re PROPERTIES IMPORTED_LOCATION
-    ${distribution_DIR}/libre.so)
+set_target_properties(baresip PROPERTIES
+    IMPORTED_LOCATION ${JNI_LIBS_DIR}/libbaresip.so
+)
 
 find_library(log-lib log)
 
-# 連結 wrapper -> baresip (還有依賴)
 target_link_libraries(baresip_ffi
     baresip
     ${log-lib}
+    android
+    c++_shared
 )

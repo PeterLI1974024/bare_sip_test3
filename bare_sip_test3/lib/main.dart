@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'baresip_ffi.dart'; // 還是留著原本的 FFI 綁定
 
 void main() => runApp(const MaterialApp(home: Demo()));
 
@@ -12,22 +11,15 @@ class Demo extends StatefulWidget {
 
 class _DemoState extends State<Demo> {
   static const _channel = MethodChannel("baresip");
-
   String log = "";
 
-  Future<void> _initFFI() async {
-    final version = bsVersion();
-    final r0 = reInit();
-    final r1 = bsInit();
-    final r2 = uaInit("flutter_sip");
-
-    setState(() {
-      log += "=== FFI 測試 ===\n";
-      log += "version=$version\n";
-      log += "libre_init=$r0\n";
-      log += "baresip_init=$r1\n";
-      log += "ua_init=$r2\n";
-    });
+  Future<void> _startNative() async {
+    try {
+      final ret = await _channel.invokeMethod<int>("baresip_start");
+      setState(() => log += "baresip_start=$ret\n");
+    } catch (e) {
+      setState(() => log += "baresip_start error: $e\n");
+    }
   }
 
   Future<void> _register() async {
@@ -57,7 +49,16 @@ class _DemoState extends State<Demo> {
   @override
   void initState() {
     super.initState();
-    _initFFI(); // 啟動時先跑一遍原本的 version/init 測試
+    _startNative();
+
+    _channel.setMethodCallHandler((call) async {
+      if (call.method == "started") {
+        setState(() => log += "== Baresip 已啟動 ==\n");
+      } else if (call.method == "ua_event") {
+        final args = call.arguments as Map;
+        setState(() => log += "== UA Event == ${args["event"]}\n");
+      }
+    });
   }
 
   @override
