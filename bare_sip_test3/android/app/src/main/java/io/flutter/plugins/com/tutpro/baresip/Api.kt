@@ -2,13 +2,16 @@ package com.tutpro.baresip
 
 object Api {
     init {
-        System.loadLibrary("baresip") // SIP 核心
-        System.loadLibrary("baresip_ffi") // 我們的 JNI 橋接
+        System.loadLibrary("baresip")
+        System.loadLibrary("baresip_ffi")
     }
-
-    // === UA 操作 ===
     external fun ua_alloc(uri: String): Long
     external fun ua_register(uap: Long): Int
     external fun ua_connect(uap: Long, peerUri: String): Int
-    external fun ua_hangup(uap: Long, callp: Long, code: Int, reason: String)
+
+    // 新增：開啟 SIP 訊息追蹤
+    external fun uag_enable_sip_trace(on: Boolean)
+    external fun testNative(value: Int): Int
+
 }
+

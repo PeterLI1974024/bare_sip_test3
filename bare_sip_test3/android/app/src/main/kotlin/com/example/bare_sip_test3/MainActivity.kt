@@ -22,14 +22,19 @@ class MainActivity : FlutterActivity() {
         channel.setMethodCallHandler { call, result ->
             when (call.method) {
 
-                "baresip_start" -> {
-                    val path = applicationContext.filesDir.absolutePath
-                    Log.d("Baresip", "baresip_start path=$path")
-                    val intent = Intent(this@MainActivity, BaresipService::class.java)
-                    intent.action = "Start"
-                    startService(intent)
-                    result.success(0)
-                }
+              "baresip_start" -> {
+    val path = applicationContext.filesDir.absolutePath
+    Log.d("Baresip", "baresip_start path=$path")
+    val intent = Intent(this@MainActivity, BaresipService::class.java)
+    intent.action = "Start"
+    startService(intent)
+
+    // 開啟 SIP trace
+    try { Api.uag_enable_sip_trace(true) } catch (_: Throwable) {}
+
+    result.success(0)
+}
+
 
                 "ua_alloc" -> {
                     val aor = call.argument<String>("aor")
@@ -76,6 +81,11 @@ class MainActivity : FlutterActivity() {
     val code = Api.ua_register(uaPtr)
     Log.d("Baresip", "[Kotlin] ua_register 回傳 code=$code")
     result.success(code)
+}
+"testNative" -> {
+    val value = call.argument<Int>("value") ?: 0
+    val resultCode = Api.testNative(value)
+    result.success(resultCode)
 }
 
 

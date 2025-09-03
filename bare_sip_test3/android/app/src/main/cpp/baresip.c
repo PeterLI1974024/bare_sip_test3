@@ -19,11 +19,20 @@ int conf_path_set(const char *path);
 #define LOG_TAG "baresip_jni"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#include <android/log.h>
+
+#define LOG_TAG "JNI_TEST"
 
 // Forward declare UA functions from baresip without pulling headers
 int ua_alloc(void **uap, const char *aor);
 int ua_register(void *ua);
 int ua_connect(void *ua, void **callp, const char *from_uri, const char *req_uri, int vmode);
+
+JNIEXPORT jint JNICALL
+Java_com_tutpro_baresip_Api_testNative(JNIEnv *env, jclass cls, jint value) {
+    __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "[C] testNative 被呼叫, value=%d", value);
+    return 120;  // 簡單回傳乘以 10
+}
 
 // JNI bridge for UA operations via baresip_ffi
 JNIEXPORT jlong JNICALL Java_com_tutpro_baresip_Api_ua_1alloc(
@@ -32,7 +41,7 @@ JNIEXPORT jlong JNICALL Java_com_tutpro_baresip_Api_ua_1alloc(
     if (!jUri) return 0;
 
     const char *uri = (*env)->GetStringUTFChars(env, jUri, 0);
-    __android_log_print(ANDROID_LOG_INFO, "JNI", "[C] ua_alloc 被呼叫, uri=%s", uri);
+    __android_log_print(ANDROID_LOG_ERROR, "JNI", "[C] ua_alloc 被呼叫, uri=%s", uri);
 
     struct ua *ua = NULL;
     int err = ua_alloc(&ua, uri);

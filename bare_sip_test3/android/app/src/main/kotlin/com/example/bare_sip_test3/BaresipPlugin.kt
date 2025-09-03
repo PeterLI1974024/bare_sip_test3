@@ -39,7 +39,11 @@ class BaresipPlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
                 val authPass = call.argument<String>("authPass") ?: ""
                 
                 // 每次都重新創建 UA 以確保認證資訊正確
-                val uri = if (authPass.isNotEmpty()) "$aor;auth_pass=$authPass" else aor
+                val uri = buildString {
+                    append(aor)
+                    if (authUser.isNotEmpty()) append(";auth_user=$authUser")
+                    if (authPass.isNotEmpty()) append(";auth_pass=$authPass")
+                }
                 uaPtr = Api.ua_alloc(uri)
                 if (uaPtr == 0L) return result.error("UA", "ua_alloc failed", null)
                 android.util.Log.d("Baresip", "ua_alloc($uri) => $uaPtr")

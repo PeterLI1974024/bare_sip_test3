@@ -23,11 +23,21 @@ class _DemoState extends State<Demo> {
     }
   }
 
+  Future<void> _testNative() async {
+    const _channel = MethodChannel("baresip");
+    try {
+      final result = await _channel.invokeMethod<int>("testNative", {"value": 7});
+      debugPrint("testNative 回傳結果 = $result");
+    } catch (e) {
+      debugPrint("testNative 發生錯誤: $e");
+    }
+  }
+
   Future<void> _register() async {
     try {
       debugPrint("[Flutter] 呼叫 ua_register...");
       final ret = await _channel.invokeMethod<num>("ua_register", {
-        "aor": "sip:2204@175.99.74.33:5060",
+        "aor": "sip:2204@175.99.74.33:5060;sipnat=outbound",
         "authUser": "2204",
         "authPass": "Twm09350935",
       });
@@ -53,17 +63,31 @@ class _DemoState extends State<Demo> {
   @override
   void initState() {
     super.initState();
+    _testNative(); // 測試呼叫 C 函式
     _startNative();
 
     _channel.setMethodCallHandler((call) async {
       if (call.method == "started") {
         setState(() => log += "== Baresip 已啟動 ==\n");
         // 等待一秒讓 baresip 完全初始化後再註冊
-        await Future.delayed(Duration(seconds: 1));
+        await Future.delayed(const Duration(seconds: 1));
         await _register();
       } else if (call.method == "ua_event") {
-        final args = call.arguments as Map;
-        setState(() => log += "== UA Event == ${args["event"]}\n");
+        final args = Map<String, dynamic>.from(call.arguments as Map);
+        final event = args["event"];
+        final ua = args["ua"];
+        final callId = args["call"];
+        final scode = args["scode"];
+        final reason = args["reason"];
+
+        setState(() {
+          log += "== UA Event == $event\n";
+          if (ua != null) log += "   ua=$ua\n";
+          if (callId != null) log += "   call=$callId\n";
+          if (scode != null) log += "   scode=$scode\n";
+          if (reason != null) log += "   reason=$reason\n";
+          log += "   raw=$args\n"; // 最後再印原始 map，避免遺漏
+        });
       } else if (call.method == "stopped") {
         setState(() => log += "== Baresip 已停止 ==\n");
       }

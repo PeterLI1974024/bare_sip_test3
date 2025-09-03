@@ -4,12 +4,18 @@
 sip_verify_server no
 sip_listen 0.0.0.0:0
 
+# TLS 設定
+tls_verify_server no
+tls_verify_client no
+
 # DNS 設定
 dns_server 8.8.8.8
 dns_server 8.8.4.4
 
 # 基本傳輸模組
 module udp.so
+module tcp.so
+module tls.so
 
 # 最小音頻支援
 module g711.so
@@ -20,3 +26,5 @@ module_app account.so
 
 # 除錯設定
 debug yes
+sip_debug yes
+net_debug yes
