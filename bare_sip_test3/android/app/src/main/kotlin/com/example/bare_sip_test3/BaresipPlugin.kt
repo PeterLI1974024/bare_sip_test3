@@ -37,14 +37,15 @@ class BaresipPlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
                 val aor = call.argument<String>("aor") ?: return result.error("ARG", "missing aor", null)
                 val authUser = call.argument<String>("authUser") ?: ""
                 val authPass = call.argument<String>("authPass") ?: ""
-                if (uaPtr == 0L) {
-                    // 使用純 AOR，不加 <> 包裝
-                    val uri = if (authPass.isNotEmpty()) "$aor;auth_pass=$authPass" else aor
-                    uaPtr = Api.ua_alloc(uri)
-                    if (uaPtr == 0L) return result.error("UA", "ua_alloc failed", null)
-                    android.util.Log.d("Baresip", "ua_alloc($uri) => $uaPtr")
-                }
+                
+                // 每次都重新創建 UA 以確保認證資訊正確
+                val uri = if (authPass.isNotEmpty()) "$aor;auth_pass=$authPass" else aor
+                uaPtr = Api.ua_alloc(uri)
+                if (uaPtr == 0L) return result.error("UA", "ua_alloc failed", null)
+                android.util.Log.d("Baresip", "ua_alloc($uri) => $uaPtr")
+                
                 val ret = Api.ua_register(uaPtr)
+                android.util.Log.d("Baresip", "ua_register => $ret")
                 result.success(ret)
             }
             "call_connect" -> {

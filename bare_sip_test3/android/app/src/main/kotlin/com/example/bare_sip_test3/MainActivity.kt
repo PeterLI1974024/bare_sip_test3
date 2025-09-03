@@ -39,13 +39,14 @@ class MainActivity : FlutterActivity() {
                     result.success(uaPtr)
                 }
 
-               "ua_register" -> {
+"ua_register" -> {
     Log.d("Baresip", "[Kotlin] 進入 ua_register handler")
 
-    val aor = call.argument<String>("aor")
-        ?: return@setMethodCallHandler result.error("ARG", "missing aor", null)
+    val aor = call.argument<String>("aor") ?: return@setMethodCallHandler result.error("ARG", "missing aor", null)
     val authUser = call.argument<String>("authUser") ?: ""
     val authPass = call.argument<String>("authPass") ?: ""
+
+    Log.d("Baresip", "[Kotlin] Flutter 傳入參數 aor=$aor, authUser=$authUser, authPass=$authPass")
 
     if (uaPtr == 0L) {
         val uri = buildString {
@@ -61,9 +62,9 @@ class MainActivity : FlutterActivity() {
                 append(authPass)
             }
         }
-        Log.d("Baresip", "[Kotlin] before ua_alloc($uri)")
+        Log.d("Baresip", "[Kotlin] 準備 ua_alloc, uri=$uri")
         uaPtr = Api.ua_alloc(uri)
-        Log.d("Baresip", "[Kotlin] after ua_alloc => $uaPtr")
+        Log.d("Baresip", "[Kotlin] ua_alloc 回傳 uaPtr=$uaPtr")
 
         if (uaPtr == 0L) {
             Log.e("Baresip", "[Kotlin] ua_alloc 失敗")
@@ -71,11 +72,12 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    Log.d("Baresip", "[Kotlin] 呼叫 ua_register($uaPtr)")
+    Log.d("Baresip", "[Kotlin] 呼叫 ua_register, uaPtr=$uaPtr")
     val code = Api.ua_register(uaPtr)
-    Log.d("Baresip", "[Kotlin] ua_register 回傳 => $code")
+    Log.d("Baresip", "[Kotlin] ua_register 回傳 code=$code")
     result.success(code)
 }
+
 
 
                 "call_connect" -> {
