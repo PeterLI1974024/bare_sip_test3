@@ -37,10 +37,11 @@ class _DemoState extends State<Demo> {
     try {
       debugPrint("[Flutter] 呼叫 ua_register...");
       final ret = await _channel.invokeMethod<num>("ua_register", {
-        // AOR (Address of Record)，指定 transport=tls
-        "aor": "sip:2204@175.99.74.33:5060;sipnat=outbound",
-        "authUser": "2204",
+        "aor": "sip:2204@stage.twmfspbx.taiwanmobile.com;transport=tls;regint=3600",
+        "authUser": "2204@e003529", // 或 "2204@e003529" 視伺服器設定
         "authPass": "Twm09350935",
+        "outbound": "sip:stage.twmfspbx.taiwanmobile.com:5061;transport=tls",
+        "sipnat": "outbound",
       });
       debugPrint("[Flutter] ua_register 回傳=$ret");
       setState(() => log += "ua_register result=$ret\n");

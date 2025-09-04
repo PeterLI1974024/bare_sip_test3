@@ -13,13 +13,11 @@
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 
-// Forward declare UA functions from baresip without pulling headers
-
 
 JNIEXPORT jint JNICALL
 Java_com_tutpro_baresip_Api_testNative(JNIEnv *env, jclass cls, jint value) {
     __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "[C] testNative 被呼叫, value=%d", value);
-    return 120;  // 簡單回傳乘以 10
+    return 120; 
 }
 
 // JNI bridge for UA operations via baresip_ffi
@@ -142,6 +140,8 @@ static void call_service_void_method(const char *name) {
     (*g_vm)->DetachCurrentThread(g_vm);
 }
 
+
+
 static void *re_thread_main(void *arg) {
     StartArgs *a = (StartArgs *)arg;
     LOGI("native thread starting, path=%s, software=%s", a->path, a->software);
@@ -160,10 +160,6 @@ static void *re_thread_main(void *arg) {
 } else {
     LOGI("libre_init 成功");
 }
-
-
-
-
   err = conf_configure();
     if (err) {
         LOGI("conf_configure() failed: (%d)\n", err);
@@ -188,13 +184,8 @@ if (err) {
 }else{
     LOGI("conf_modules() 成功");
 
-
 }
-
-
-
-
-    err = ua_init(a->software ? a->software : "baresip", 1, 1, 1);
+    err = ua_init(a->software ? a->software : "baresip", true, true, true);
    if (err) {
     LOGE("ua_init failed (%d)", err);
     goto out_close_baresip;
@@ -237,6 +228,7 @@ out:
     free(a);
     return NULL;
 }
+
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     g_vm = vm;
