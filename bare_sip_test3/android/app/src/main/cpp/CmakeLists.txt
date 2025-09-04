@@ -1,26 +1,26 @@
-cmake_minimum_required(VERSION 3.10.2)
-project(baresip_ffi)
+    cmake_minimum_required(VERSION 3.10.2)
+    project(baresip_ffi)
 
-add_library(baresip_ffi SHARED baresip.c)
+    add_library(baresip_ffi SHARED baresip.c)
 
-include_directories(
-    ${CMAKE_CURRENT_LIST_DIR}/../../../../../native/re/include
-    ${CMAKE_CURRENT_LIST_DIR}/../../../../../native/rem/include
-    ${CMAKE_CURRENT_LIST_DIR}/../../../../../native/baresip/include
-)
+    include_directories(
+        ${CMAKE_CURRENT_LIST_DIR}/../../../../../native/re/include
+        ${CMAKE_CURRENT_LIST_DIR}/../../../../../native/rem/include
+        ${CMAKE_CURRENT_LIST_DIR}/../../../../../native/baresip/include
+    )
 
-set(JNI_LIBS_DIR ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
+    set(JNI_LIBS_DIR ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
 
-add_library(baresip SHARED IMPORTED)
-set_target_properties(baresip PROPERTIES
-    IMPORTED_LOCATION ${JNI_LIBS_DIR}/libbaresip.so
-)
+    add_library(baresip SHARED IMPORTED)
+    set_target_properties(baresip PROPERTIES
+        IMPORTED_LOCATION ${JNI_LIBS_DIR}/libbaresip.so
+    )
 
-find_library(log-lib log)
+    find_library(log-lib log)
 
-target_link_libraries(baresip_ffi
-    baresip
-    ${log-lib}
-    android
-    c++_shared
-)
+    target_link_libraries(baresip_ffi
+        baresip
+        ${log-lib}
+        android
+        c++_shared
+    )

@@ -183,13 +183,46 @@ static void *re_thread_main(void *arg) {
     __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "conf_path set to: %s", a->path ? a->path : "(null)");
 
     int err = libre_init();
-    if (err) { LOGE("libre_init failed (%d)", err); goto out; }
+  if (err) {
+    LOGE("libre_init failed (%d)", err);
+    goto out;
+} else {
+    LOGI("libre_init 成功");
+}
+  err = conf_configure();
+    if (err) {
+        LOGI("conf_configure() failed: (%d)\n", err);
+        goto out;
+    }else{
+        LOGI("conf_configure() 成功");
+    }
+
 
     err = baresip_init(conf_config());
-    if (err) { LOGE("baresip_init failed (%d)", err); goto out_close_re; }
+  if (err) {
+    LOGE("baresip_init failed (%d)", err);
+    goto out_close_re;
+} else {
+    LOGI("baresip_init 成功");
+}
+
+err = conf_modules();
+if (err) {
+    LOGE("conf_modules() failed (%d)", err);
+    goto out_close_baresip;
+}else{
+    LOGI("conf_modules() 成功");
+}
+
+
 
     err = ua_init(a->software ? a->software : "baresip", 1, 1, 1);
-    if (err) { LOGE("ua_init failed (%d)", err); goto out_close_baresip; }
+   if (err) {
+    LOGE("ua_init failed (%d)", err);
+    goto out_close_baresip;
+} else {
+    LOGI("ua_init 成功");
+}
     err = bevent_register(event_handler, NULL);
 
 
