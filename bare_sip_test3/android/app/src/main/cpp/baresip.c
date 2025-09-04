@@ -15,6 +15,14 @@ void ua_close(void);
 void re_main(void *arg);
 void *conf_config(void);
 int conf_path_set(const char *path);
+struct mod {
+    struct mod *next;   // 這邊只是占位，實際上是 struct le
+    char name[64];      // 模組名稱是內嵌陣列，不是指標
+    // 其他欄位省略
+};
+
+
+extern struct mod *mod_list(void);
 
 #define LOG_TAG "baresip_jni"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -126,6 +134,17 @@ typedef struct {
     char *software;
 } StartArgs;
 
+static void list_modules(void) {
+    struct mod *m;
+
+    LOGI("=== 已載入模組清單 ===");
+    for (m = mod_list(); m != NULL; m = m->next) {
+        LOGI("module: %s", m->name);
+    }
+    LOGI("=====================");
+}
+
+
 static void call_service_void_method(const char *name) {
     if (!g_vm || !g_service) {
         LOGE("call_service_void_method: g_vm=%p g_service=%p", g_vm, g_service);
@@ -189,6 +208,10 @@ static void *re_thread_main(void *arg) {
 } else {
     LOGI("libre_init 成功");
 }
+
+
+
+
   err = conf_configure();
     if (err) {
         LOGI("conf_configure() failed: (%d)\n", err);
@@ -212,7 +235,10 @@ if (err) {
     goto out_close_baresip;
 }else{
     LOGI("conf_modules() 成功");
+
+
 }
+
 
 
 
