@@ -28,6 +28,26 @@ int ua_alloc(void **uap, const char *aor);
 int ua_register(void *ua);
 int ua_connect(void *ua, void **callp, const char *from_uri, const char *req_uri, int vmode);
 
+enum bevent_ev;
+struct bevent;
+int bevent_register(void (*h)(enum bevent_ev ev, struct bevent *event, void *arg), void *arg);
+const char *bevent_get_text(const struct bevent *event);
+struct ua *bevent_get_ua(const struct bevent *event);
+struct call *bevent_get_call(const struct bevent *event);
+
+enum bevent_ev {
+    BEVENT_CREATE = 0,
+    BEVENT_REGISTERING,
+    BEVENT_UNREGISTERING,
+    BEVENT_REGISTER_OK,
+    BEVENT_FALLBACK_OK,
+    BEVENT_REGISTER_FAIL,
+    BEVENT_FALLBACK_FAIL,
+    BEVENT_CALL_INCOMING,
+    // … 其他的照 bevent.h 抄
+};
+
+
 JNIEXPORT jint JNICALL
 Java_com_tutpro_baresip_Api_testNative(JNIEnv *env, jclass cls, jint value) {
     __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, "[C] testNative 被呼叫, value=%d", value);
@@ -83,6 +103,23 @@ JNIEXPORT jint JNICALL Java_com_tutpro_baresip_Api_ua_1connect(JNIEnv *env, jcla
 
 static JavaVM *g_vm = NULL;
 static jobject g_service = NULL; // GlobalRef of BaresipService instance
+
+static void event_handler(enum bevent_ev ev, struct bevent *event, void *arg) {
+    (void)arg;
+    const char *prm = bevent_get_text(event);
+    struct ua *ua = bevent_get_ua(event);
+    struct call *call = bevent_get_call(event);
+
+    __android_log_print(ANDROID_LOG_INFO, "JNI_TEST",
+                        "bevent: ev=%d, prm=%s, ua=%p, call=%p",
+                        ev, prm ? prm : "", ua, call);
+
+    if (ev ==  BEVENT_REGISTER_OK) {
+        __android_log_print(ANDROID_LOG_INFO, "JNI_TEST", "REGISTER OK (%s)", prm ? prm : "");
+    } else if (ev == BEVENT_REGISTER_FAIL) {
+        __android_log_print(ANDROID_LOG_INFO, "JNI_TEST", "REGISTER FAIL (%s)", prm ? prm : "");
+    }
+}
 
 typedef struct {
     char *path;
@@ -153,6 +190,8 @@ static void *re_thread_main(void *arg) {
 
     err = ua_init(a->software ? a->software : "baresip", 1, 1, 1);
     if (err) { LOGE("ua_init failed (%d)", err); goto out_close_baresip; }
+    err = bevent_register(event_handler, NULL);
+
 
     LOGI("baresip ready, initialization complete");
     
@@ -164,7 +203,7 @@ static void *re_thread_main(void *arg) {
     __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "Module check complete");
     
     // 確保初始化完成後才回呼 started
-    call_service_void_method("started");
+    // call_service_void_method("started");
     
     // 啟動 baresip 事件循環 (非阻塞)
     __android_log_print(ANDROID_LOG_INFO, LOG_TAG, "Starting event loop...");
@@ -194,29 +233,58 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 }
 
 JNIEXPORT void JNICALL
-Java_com_tutpro_baresip_BaresipService_baresipStart(
+Java_com_tutpro_baresip_Api_baresipStart(
         JNIEnv *env, jobject thiz,
         jstring jPath, jstring jAddrs,
         jint jLogLevel, jstring jSoftware) {
+
+    __android_log_print(ANDROID_LOG_INFO, "JNI_TEST", "[C] 進入 baresipStart() JNI");
+
     (void)jAddrs; (void)jLogLevel;
     const char *path = jPath ? (*env)->GetStringUTFChars(env, jPath, 0) : NULL;
     const char *soft = jSoftware ? (*env)->GetStringUTFChars(env, jSoftware, 0) : NULL;
 
+    __android_log_print(ANDROID_LOG_INFO, "JNI_TEST",
+                        "[C] 傳入參數 path=%s, software=%s",
+                        path ? path : "(null)",
+                        soft ? soft : "(null)");
+
     // Keep global ref to service instance for callbacks
     if (g_service) {
+        __android_log_print(ANDROID_LOG_INFO, "JNI_TEST", "[C] 刪除舊的 GlobalRef g_service=%p", g_service);
         (*env)->DeleteGlobalRef(env, g_service);
         g_service = NULL;
     }
     g_service = (*env)->NewGlobalRef(env, thiz);
+    __android_log_print(ANDROID_LOG_INFO, "JNI_TEST", "[C] 建立新的 GlobalRef g_service=%p", g_service);
 
     StartArgs *args = (StartArgs *)calloc(1, sizeof(StartArgs));
     args->path = path ? strdup(path) : NULL;
     args->software = soft ? strdup(soft) : NULL;
 
-    if (path) (*env)->ReleaseStringUTFChars(env, jPath, path);
-    if (soft) (*env)->ReleaseStringUTFChars(env, jSoftware, soft);
+    if (path) {
+        (*env)->ReleaseStringUTFChars(env, jPath, path);
+        __android_log_print(ANDROID_LOG_INFO, "JNI_TEST", "[C] 已釋放 path");
+    }
+    if (soft) {
+        (*env)->ReleaseStringUTFChars(env, jSoftware, soft);
+        __android_log_print(ANDROID_LOG_INFO, "JNI_TEST", "[C] 已釋放 software");
+    }
+
+    __android_log_print(ANDROID_LOG_INFO, "JNI_TEST",
+                        "[C] pthread_create 準備啟動 re_thread_main, path=%s, software=%s",
+                        args->path ? args->path : "(null)",
+                        args->software ? args->software : "(null)");
 
     pthread_t tid;
-    pthread_create(&tid, NULL, re_thread_main, args);
+    int rc = pthread_create(&tid, NULL, re_thread_main, args);
+    if (rc != 0) {
+        __android_log_print(ANDROID_LOG_ERROR, "JNI_TEST", "[C] pthread_create 失敗 rc=%d", rc);
+    } else {
+        __android_log_print(ANDROID_LOG_INFO, "JNI_TEST", "[C] pthread_create 成功 tid=%lu", (unsigned long)tid);
+    }
+
     pthread_detach(tid);
+    __android_log_print(ANDROID_LOG_INFO, "JNI_TEST", "[C] pthread_detach 完成");
 }
+

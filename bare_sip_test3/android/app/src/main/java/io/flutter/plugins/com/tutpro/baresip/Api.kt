@@ -12,6 +12,8 @@ object Api {
     // 新增：開啟 SIP 訊息追蹤
     external fun uag_enable_sip_trace(on: Boolean)
     external fun testNative(value: Int): Int
+    external fun baresipStart(path: String, addrs: String, logLevel: Int, software: String)
+
 
 }
 

@@ -30,7 +30,7 @@ class BaresipPlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
                 val intent = Intent(context, BaresipService::class.java)
                 intent.action = "Start"
                 context.startService(intent)
-                android.util.Log.d("Baresip", "Starting BaresipService")
+
                 result.success(0)
             }
             "ua_register" -> {

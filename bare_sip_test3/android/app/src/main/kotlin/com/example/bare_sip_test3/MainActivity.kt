@@ -22,18 +22,24 @@ class MainActivity : FlutterActivity() {
         channel.setMethodCallHandler { call, result ->
             when (call.method) {
 
-              "baresip_start" -> {
-    val path = applicationContext.filesDir.absolutePath
-    Log.d("Baresip", "baresip_start path=$path")
-    val intent = Intent(this@MainActivity, BaresipService::class.java)
-    intent.action = "Start"
-    startService(intent)
+"baresip_start" -> {
+            val path = applicationContext.filesDir.absolutePath
+            Log.d("Baresip", "baresip_start path=$path")
 
-    // 開啟 SIP trace
-    try { Api.uag_enable_sip_trace(true) } catch (_: Throwable) {}
+            try {
+                // 直接呼叫 JNI API，而不是透過 Service
+                Api.baresipStart(path, "", 5, "flutter_sip")
+                Log.d("Baresip", "Api.baresipStart 呼叫完成")
 
-    result.success(0)
-}
+                // 開啟 SIP trace
+                try { Api.uag_enable_sip_trace(true) } catch (_: Throwable) {}
+
+                result.success(0)
+            } catch (e: Throwable) {
+                Log.e("Baresip", "baresipStart 呼叫失敗", e)
+                result.error("JNI", "baresipStart failed", e.message)
+            }
+        }
 
 
                 "ua_alloc" -> {
