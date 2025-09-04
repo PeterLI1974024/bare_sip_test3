@@ -6,14 +6,14 @@
     [
       "/Users/peterlitwm/Library/Android/sdk/cmake/3.18.1/bin/ninja",
       "-C",
-      "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/4v63444c/arm64-v8a",
+      "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/5p2f63y6/arm64-v8a",
       "clean"
     ]
   ],
   "buildTargetsCommandComponents": [
     "/Users/peterlitwm/Library/Android/sdk/cmake/3.18.1/bin/ninja",
     "-C",
-    "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/4v63444c/arm64-v8a",
+    "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/5p2f63y6/arm64-v8a",
     "{LIST_OF_TARGETS_TO_BUILD}"
   ],
   "libraries": {
@@ -21,7 +21,7 @@
       "toolchain": "toolchain",
       "abi": "arm64-v8a",
       "artifactName": "baresip",
-      "output": "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/Debug/4v63444c/obj/arm64-v8a/libbaresip.so",
+      "output": "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/Debug/5p2f63y6/obj/arm64-v8a/libbaresip.so",
       "runtimeFiles": []
     }
   },

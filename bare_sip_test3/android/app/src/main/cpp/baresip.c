@@ -4,56 +4,16 @@
 #include <string.h>
 #include <pthread.h>
 #include <android/log.h>
-
-// Forward declarations to avoid pulling mismatched headers
-int libre_init(void);
-void libre_close(void);
-int baresip_init(void *cfg);
-void baresip_close(void);
-int ua_init(const char *software, int aumode, int vumode, int dumode);
-void ua_close(void);
-void re_main(void *arg);
-void *conf_config(void);
-int conf_path_set(const char *path);
-struct mod {
-    struct mod *next;   // 這邊只是占位，實際上是 struct le
-    char name[64];      // 模組名稱是內嵌陣列，不是指標
-    // 其他欄位省略
-};
-
-
-extern struct mod *mod_list(void);
+#include <re.h>
+#include <baresip.h>
+#include <android/log.h>
 
 #define LOG_TAG "baresip_jni"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-#include <android/log.h>
 
-#define LOG_TAG "JNI_TEST"
 
 // Forward declare UA functions from baresip without pulling headers
-int ua_alloc(void **uap, const char *aor);
-int ua_register(void *ua);
-int ua_connect(void *ua, void **callp, const char *from_uri, const char *req_uri, int vmode);
-
-enum bevent_ev;
-struct bevent;
-int bevent_register(void (*h)(enum bevent_ev ev, struct bevent *event, void *arg), void *arg);
-const char *bevent_get_text(const struct bevent *event);
-struct ua *bevent_get_ua(const struct bevent *event);
-struct call *bevent_get_call(const struct bevent *event);
-
-enum bevent_ev {
-    BEVENT_CREATE = 0,
-    BEVENT_REGISTERING,
-    BEVENT_UNREGISTERING,
-    BEVENT_REGISTER_OK,
-    BEVENT_FALLBACK_OK,
-    BEVENT_REGISTER_FAIL,
-    BEVENT_FALLBACK_FAIL,
-    BEVENT_CALL_INCOMING,
-    // … 其他的照 bevent.h 抄
-};
 
 
 JNIEXPORT jint JNICALL
@@ -104,9 +64,9 @@ JNIEXPORT jint JNICALL Java_com_tutpro_baresip_Api_ua_1connect(JNIEnv *env, jcla
     if (!ua || !jPeer) return -1;
     const char *peer = (*env)->GetStringUTFChars(env, jPeer, 0);
     void *call = NULL;
-    int err = ua_connect(ua, &call, NULL, peer, 1);
+
     (*env)->ReleaseStringUTFChars(env, jPeer, peer);
-    return err;
+
 }
 
 static JavaVM *g_vm = NULL;
@@ -134,15 +94,7 @@ typedef struct {
     char *software;
 } StartArgs;
 
-static void list_modules(void) {
-    struct mod *m;
 
-    LOGI("=== 已載入模組清單 ===");
-    for (m = mod_list(); m != NULL; m = m->next) {
-        LOGI("module: %s", m->name);
-    }
-    LOGI("=====================");
-}
 
 
 static void call_service_void_method(const char *name) {

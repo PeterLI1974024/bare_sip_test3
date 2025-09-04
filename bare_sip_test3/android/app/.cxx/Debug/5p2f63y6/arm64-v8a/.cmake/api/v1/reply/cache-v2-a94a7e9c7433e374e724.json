@@ -35,7 +35,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "android-21"
+			"value" : "android-28"
 		},
 		{
 			"name" : "CMAKE_ADDR2LINE",
@@ -151,7 +151,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/4v63444c/arm64-v8a"
+			"value" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/5p2f63y6/arm64-v8a"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -695,7 +695,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/Debug/4v63444c/obj/arm64-v8a"
+			"value" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/Debug/5p2f63y6/obj/arm64-v8a"
 		},
 		{
 			"name" : "CMAKE_LINKER",
@@ -911,7 +911,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "baresip_ffi"
+			"value" : "baresip"
 		},
 		{
 			"name" : "CMAKE_RANLIB",
@@ -967,7 +967,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/Debug/4v63444c/obj/arm64-v8a"
+			"value" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/Debug/5p2f63y6/obj/arm64-v8a"
 		},
 		{
 			"name" : "CMAKE_SHARED_LINKER_FLAGS",
@@ -1199,7 +1199,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "21"
+			"value" : "28"
 		},
 		{
 			"name" : "CMAKE_TOOLCHAIN_FILE",
@@ -1223,7 +1223,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/usr/bin/uname"
+			"value" : "/opt/homebrew/opt/coreutils/libexec/gnubin/uname"
 		},
 		{
 			"name" : "CMAKE_VERBOSE_MAKEFILE",
@@ -1242,7 +1242,7 @@
 			"value" : "FALSE"
 		},
 		{
-			"name" : "baresip_ffi_BINARY_DIR",
+			"name" : "baresip_BINARY_DIR",
 			"properties" : 
 			[
 				{
@@ -1251,10 +1251,10 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/4v63444c/arm64-v8a"
+			"value" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/5p2f63y6/arm64-v8a"
 		},
 		{
-			"name" : "baresip_ffi_LIB_DEPENDS",
+			"name" : "baresip_LIB_DEPENDS",
 			"properties" : 
 			[
 				{
@@ -1263,10 +1263,10 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "general;baresip;general;/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/21/liblog.so;general;android;general;c++_shared;"
+			"value" : "general;android;general;aaudio;general;lib_baresip;general;lib_re;general;lib_ssl;general;lib_crypto;general;lib_opus;general;lib_spandsp;general;lib_g722_1;general;lib_g729;general;lib_codec2;general;lib_amrnb;general;lib_amrwb;general;lib_amrwbenc;general;lib_zrtpcppcore;general;lib_sndfile;general;z;general;log;general;c++_shared;general;c++_static;"
 		},
 		{
-			"name" : "baresip_ffi_SOURCE_DIR",
+			"name" : "baresip_SOURCE_DIR",
 			"properties" : 
 			[
 				{
@@ -1276,18 +1276,6 @@
 			],
 			"type" : "STATIC",
 			"value" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp"
-		},
-		{
-			"name" : "log-lib",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Path to a library."
-				}
-			],
-			"type" : "FILEPATH",
-			"value" : "/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/21/liblog.so"
 		}
 	],
 	"kind" : "cache",

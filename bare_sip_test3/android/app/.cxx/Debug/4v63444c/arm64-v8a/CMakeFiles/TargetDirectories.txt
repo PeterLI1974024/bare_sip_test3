@@ -1,3 +1,3 @@
 /Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/4v63444c/arm64-v8a/CMakeFiles/rebuild_cache.dir
 /Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/4v63444c/arm64-v8a/CMakeFiles/edit_cache.dir
-/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/4v63444c/arm64-v8a/CMakeFiles/baresip_ffi.dir
+/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/4v63444c/arm64-v8a/CMakeFiles/baresip.dir

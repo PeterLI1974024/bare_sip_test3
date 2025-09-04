@@ -25,7 +25,7 @@ rule CUSTOM_COMMAND
 rule C_COMPILER__baresip_Debug
   depfile = $DEP_FILE
   deps = gcc
-  command = /Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang --target=aarch64-none-linux-android21 --gcc-toolchain=/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64 --sysroot=/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  command = /Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang --target=aarch64-none-linux-android28 --gcc-toolchain=/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64 --sysroot=/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
   description = Building C object $out
 
 
@@ -33,7 +33,7 @@ rule C_COMPILER__baresip_Debug
 # Rule for linking C shared library.
 
 rule C_SHARED_LIBRARY_LINKER__baresip_Debug
-  command = $PRE_LINK && /Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang --target=aarch64-none-linux-android21 --gcc-toolchain=/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64 --sysroot=/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -fPIC $LANGUAGE_COMPILE_FLAGS $ARCH_FLAGS $LINK_FLAGS -shared $SONAME_FLAG$SONAME -o $TARGET_FILE $in $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
+  command = $PRE_LINK && /Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang --target=aarch64-none-linux-android28 --gcc-toolchain=/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64 --sysroot=/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -fPIC $LANGUAGE_COMPILE_FLAGS $ARCH_FLAGS $LINK_FLAGS -shared $SONAME_FLAG$SONAME -o $TARGET_FILE $in $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking C shared library $TARGET_FILE
   restat = $RESTAT
 
@@ -42,7 +42,7 @@ rule C_SHARED_LIBRARY_LINKER__baresip_Debug
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /Users/peterlitwm/Library/Android/sdk/cmake/3.18.1/bin/cmake --regenerate-during-build -S/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp -B/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/4v63444c/arm64-v8a
+  command = /Users/peterlitwm/Library/Android/sdk/cmake/3.18.1/bin/cmake --regenerate-during-build -S/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp -B/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/Debug/5p2f63y6/arm64-v8a
   description = Re-running CMake...
   generator = 1
 

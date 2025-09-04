@@ -3,7 +3,6 @@ package com.tutpro.baresip
 object Api {
     init {
         System.loadLibrary("baresip")
-        System.loadLibrary("baresip_ffi")
     }
     external fun ua_alloc(uri: String): Long
     external fun ua_register(uap: Long): Int

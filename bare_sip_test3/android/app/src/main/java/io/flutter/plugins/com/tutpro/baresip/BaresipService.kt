@@ -15,7 +15,7 @@ class BaresipService : Service() {
         
         init {
             System.loadLibrary("baresip")
-            System.loadLibrary("baresip_ffi")
+
         }
     }
 

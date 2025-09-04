@@ -1,26 +1,103 @@
-    cmake_minimum_required(VERSION 3.10.2)
-    project(baresip_ffi)
+cmake_minimum_required(VERSION 3.10)   # 建議至少 3.10，避免舊版相容性錯誤
+project(baresip)
 
-    add_library(baresip_ffi SHARED baresip.c)
+# Android 特定：避免 build-id，縮小體積
+add_link_options("LINKER:--build-id=none")
 
-    include_directories(
-        ${CMAKE_CURRENT_LIST_DIR}/../../../../../native/re/include
-        ${CMAKE_CURRENT_LIST_DIR}/../../../../../native/rem/include
-        ${CMAKE_CURRENT_LIST_DIR}/../../../../../native/baresip/include
-    )
+# 這裡改成你的 distribution 實際路徑
+set(distribution_DIR /Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/libbaresip-android/distribution)
 
-    set(JNI_LIBS_DIR ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
+# === 匯入靜態庫 (.a) ===
+add_library(lib_crypto STATIC IMPORTED)
+set_target_properties(lib_crypto PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/openssl/lib/${ANDROID_ABI}/libcrypto.a)
 
-    add_library(baresip SHARED IMPORTED)
-    set_target_properties(baresip PROPERTIES
-        IMPORTED_LOCATION ${JNI_LIBS_DIR}/libbaresip.so
-    )
+add_library(lib_ssl STATIC IMPORTED)
+set_target_properties(lib_ssl PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/openssl/lib/${ANDROID_ABI}/libssl.a)
 
-    find_library(log-lib log)
+add_library(lib_re STATIC IMPORTED)
+set_target_properties(lib_re PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/re/lib/${ANDROID_ABI}/libre.a)
 
-    target_link_libraries(baresip_ffi
-        baresip
-        ${log-lib}
-        android
-        c++_shared
-    )
+add_library(lib_opus STATIC IMPORTED)
+set_target_properties(lib_opus PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/opus/lib/${ANDROID_ABI}/libopus.a)
+
+add_library(lib_spandsp STATIC IMPORTED)
+set_target_properties(lib_spandsp PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/spandsp/lib/${ANDROID_ABI}/libspandsp.a)
+
+add_library(lib_g722_1 STATIC IMPORTED)
+set_target_properties(lib_g722_1 PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/g7221/lib/${ANDROID_ABI}/libg722_1.a)
+
+add_library(lib_g729 STATIC IMPORTED)
+set_target_properties(lib_g729 PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/g729/lib/${ANDROID_ABI}/libbcg729.a)
+
+add_library(lib_codec2 STATIC IMPORTED)
+set_target_properties(lib_codec2 PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/codec2/lib/${ANDROID_ABI}/libcodec2.a)
+
+add_library(lib_amrnb STATIC IMPORTED)
+set_target_properties(lib_amrnb PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/amr/lib/${ANDROID_ABI}/libamrnb.a)
+
+add_library(lib_amrwb STATIC IMPORTED)
+set_target_properties(lib_amrwb PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/amr/lib/${ANDROID_ABI}/libamrwb.a)
+
+add_library(lib_amrwbenc STATIC IMPORTED)
+set_target_properties(lib_amrwbenc PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/amr/lib/${ANDROID_ABI}/libamrwbenc.a)
+
+add_library(lib_zrtpcppcore STATIC IMPORTED)
+set_target_properties(lib_zrtpcppcore PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/gzrtp/lib/${ANDROID_ABI}/libzrtpcppcore.a)
+
+add_library(lib_sndfile STATIC IMPORTED)
+set_target_properties(lib_sndfile PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/sndfile/lib/${ANDROID_ABI}/libsndfile.a)
+
+add_library(lib_baresip STATIC IMPORTED)
+set_target_properties(lib_baresip PROPERTIES IMPORTED_LOCATION
+    ${distribution_DIR}/baresip/lib/${ANDROID_ABI}/libbaresip.a)
+
+# === 生成最終 so ===
+# 這是你自己的 JNI / FFI wrapper
+add_library(baresip SHARED baresip.c)
+
+# === include path (必要 header) ===
+target_include_directories(baresip PRIVATE
+    ${distribution_DIR}/openssl/include
+    ${distribution_DIR}/re/include
+    ${distribution_DIR}/baresip/include
+)
+
+# === 定義 pthread 支援 ===
+add_definitions(-DHAVE_PTHREAD)
+
+# === link 順序 (注意前後依賴) ===
+target_link_libraries(baresip
+    android
+    aaudio
+    lib_baresip
+    lib_re
+    lib_ssl
+    lib_crypto
+    lib_opus
+    lib_spandsp
+    lib_g722_1
+    lib_g729
+    lib_codec2
+    lib_amrnb
+    lib_amrwb
+    lib_amrwbenc
+    lib_zrtpcppcore
+    lib_sndfile
+    z
+    log
+    c++_shared 
+    c++_static
+)
