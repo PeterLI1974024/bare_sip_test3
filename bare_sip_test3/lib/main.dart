@@ -37,10 +37,13 @@ class _DemoState extends State<Demo> {
     try {
       debugPrint("[Flutter] 呼叫 ua_register...");
       final ret = await _channel.invokeMethod<num>("ua_register", {
-        "aor": "sip:2204@175.99.74.33:5060",
+        "user": "2204",
+        "domain": "e003529",
+        "proxy": "175.99.74.33:5060",
         "authUser": "2204",
         "authPass": "Twm09350935",
       });
+
       debugPrint("[Flutter] ua_register 回傳=$ret");
       setState(() => log += "ua_register result=$ret\n");
     } catch (e) {

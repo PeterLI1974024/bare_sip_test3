@@ -53,26 +53,28 @@ class MainActivity : FlutterActivity() {
 "ua_register" -> {
     Log.d("Baresip", "[Kotlin] 進入 ua_register handler")
 
-    val aor = call.argument<String>("aor") ?: return@setMethodCallHandler result.error("ARG", "missing aor", null)
+    val user = call.argument<String>("user") ?: return@setMethodCallHandler result.error("ARG", "missing user", null)
+    val domain = call.argument<String>("domain") ?: return@setMethodCallHandler result.error("ARG", "missing domain", null)
+    val proxy = call.argument<String>("proxy") ?: "175.99.74.33:5060"
     val authUser = call.argument<String>("authUser") ?: ""
     val authPass = call.argument<String>("authPass") ?: ""
 
-    Log.d("Baresip", "[Kotlin] Flutter 傳入參數 aor=$aor, authUser=$authUser, authPass=$authPass")
+    Log.d("Baresip", "[Kotlin] Flutter 傳入參數 user=$user, domain=$domain, proxy=$proxy, authUser=$authUser, authPass=$authPass")
 
     if (uaPtr == 0L) {
         val uri = buildString {
-            append('<')
-            append(aor)
-            append('>')
+            // 🔹 AOR 正確組成 (From/To)
+            append("<sip:$user@$domain>")
             if (authUser.isNotEmpty()) {
-                append(";auth_user=")
-                append(authUser)
+                append(";auth_user=$authUser")
             }
             if (authPass.isNotEmpty()) {
-                append(";auth_pass=")
-                append(authPass)
+                append(";auth_pass=$authPass")
             }
+            // 🔹 Proxy 放 outbound
+            append(";outbound=\"sip:$proxy;transport=tcp\"")
         }
+
         Log.d("Baresip", "[Kotlin] 準備 ua_alloc, uri=$uri")
         uaPtr = Api.ua_alloc(uri)
         Log.d("Baresip", "[Kotlin] ua_alloc 回傳 uaPtr=$uaPtr")
@@ -88,6 +90,8 @@ class MainActivity : FlutterActivity() {
     Log.d("Baresip", "[Kotlin] ua_register 回傳 code=$code")
     result.success(code)
 }
+
+
 "testNative" -> {
     val value = call.argument<Int>("value") ?: 0
     val resultCode = Api.testNative(value)
