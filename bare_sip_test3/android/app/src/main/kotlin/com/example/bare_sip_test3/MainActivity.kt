@@ -28,7 +28,7 @@ class MainActivity : FlutterActivity() {
 
             try {
                 // 直接呼叫 JNI API，而不是透過 Service
-                Api.baresipStart(path, "", 5, "flutter_sip")
+                Api.baresipStart(path, "", 5, "baresip")
                 Log.d("Baresip", "Api.baresipStart 呼叫完成")
 
                 // 開啟 SIP trace

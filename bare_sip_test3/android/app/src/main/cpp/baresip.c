@@ -70,6 +70,20 @@ JNIEXPORT jint JNICALL Java_com_tutpro_baresip_Api_ua_1connect(JNIEnv *env, jcla
 static JavaVM *g_vm = NULL;
 static jobject g_service = NULL; // GlobalRef of BaresipService instance
 
+void log_loaded_modules(void) {
+    struct le *le;
+    for (le = list_head(mod_list()); le; le = le->next) {
+        struct mod *mod = le->data;
+        const struct mod_export *me = mod_export(mod);
+
+        if (me) {
+            LOGI("Loaded module: %s (type=%s)", me->name, me->type);
+        } else {
+            LOGI("Loaded module: <unknown>");
+        }
+    }
+}
+
 static void event_handler(enum bevent_ev ev, struct bevent *event, void *arg) {
     (void)arg;
     const char *prm = bevent_get_text(event);
@@ -183,7 +197,7 @@ if (err) {
     goto out_close_baresip;
 }else{
     LOGI("conf_modules() 成功");
-
+        log_loaded_modules();  // 列印所有載入的模組
 }
     err = ua_init(a->software ? a->software : "baresip", true, true, true);
    if (err) {

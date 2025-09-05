@@ -37,11 +37,9 @@ class _DemoState extends State<Demo> {
     try {
       debugPrint("[Flutter] 呼叫 ua_register...");
       final ret = await _channel.invokeMethod<num>("ua_register", {
-        "aor": "sip:2204@stage.twmfspbx.taiwanmobile.com;transport=tls;regint=3600",
-        "authUser": "2204@e003529", // 或 "2204@e003529" 視伺服器設定
+        "aor": "sip:2204@175.99.74.33:5060",
+        "authUser": "2204",
         "authPass": "Twm09350935",
-        "outbound": "sip:stage.twmfspbx.taiwanmobile.com:5061;transport=tls",
-        "sipnat": "outbound",
       });
       debugPrint("[Flutter] ua_register 回傳=$ret");
       setState(() => log += "ua_register result=$ret\n");
@@ -65,7 +63,7 @@ class _DemoState extends State<Demo> {
   @override
   void initState() {
     super.initState();
-    _testNative(); // 測試呼叫 C 函式
+    // _testNative(); // 測試呼叫 C 函式
     _startNative();
 
     _channel.setMethodCallHandler((call) async {

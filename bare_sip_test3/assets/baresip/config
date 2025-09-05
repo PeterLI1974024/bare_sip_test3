@@ -1,12 +1,12 @@
 # baresip 最小化測試配置
 
 # SIP 設定
-sip_verify_server no
+; sip_verify_server no
 sip_listen 0.0.0.0:0
 
 # TLS 設定
-tls_verify_server no
-tls_verify_client no
+; tls_verify_server no
+; tls_verify_client no
 
 # DNS 設定
 dns_server 8.8.8.8
