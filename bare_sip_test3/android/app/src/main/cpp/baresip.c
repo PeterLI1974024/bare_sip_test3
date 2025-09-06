@@ -56,15 +56,29 @@ JNIEXPORT jint JNICALL Java_com_tutpro_baresip_Api_ua_1register(
 }
 
 
-JNIEXPORT jint JNICALL Java_com_tutpro_baresip_Api_ua_1connect(JNIEnv *env, jclass cls, jlong uap, jstring jPeer) {
+JNIEXPORT jint JNICALL
+Java_com_tutpro_baresip_Api_ua_1connect(JNIEnv *env, jclass cls, jlong uap, jstring jPeer) {
     (void)cls;
-    void *ua = (void*)(intptr_t)uap;
+
+    struct ua *ua = (struct ua *)(intptr_t)uap;
     if (!ua || !jPeer) return -1;
+
     const char *peer = (*env)->GetStringUTFChars(env, jPeer, 0);
-    void *call = NULL;
+    int err = 0;
+
+    struct call *call = NULL;
+
+    // 呼叫 baresip 提供的 API 建立 outgoing call
+    err = ua_connect(ua, &call, NULL, peer, VIDMODE_ON);
 
     (*env)->ReleaseStringUTFChars(env, jPeer, peer);
 
+    if (err) {
+        warning("JNI ua_connect: failed with err=%d\n", err);
+        return -1;
+    }
+
+    return 0;  // success
 }
 
 static JavaVM *g_vm = NULL;
@@ -94,12 +108,30 @@ static void event_handler(enum bevent_ev ev, struct bevent *event, void *arg) {
                         "bevent: ev=%d, prm=%s, ua=%p, call=%p",
                         ev, prm ? prm : "", ua, call);
 
-    if (ev ==  BEVENT_REGISTER_OK) {
-        __android_log_print(ANDROID_LOG_INFO, "JNI_TEST", "REGISTER OK (%s)", prm ? prm : "");
-    } else if (ev == BEVENT_REGISTER_FAIL) {
-        __android_log_print(ANDROID_LOG_INFO, "JNI_TEST", "REGISTER FAIL (%s)", prm ? prm : "");
+    switch (ev) {
+        case BEVENT_REGISTER_OK:
+            LOGI("REGISTER OK (%s)", prm ? prm : "");
+            break;
+        case BEVENT_REGISTER_FAIL:
+            LOGI("REGISTER FAIL (%s)", prm ? prm : "");
+            break;
+        case BEVENT_CALL_OUTGOING:
+            LOGI("撥號出去: %s", prm ? prm : "");
+            break;
+        case BEVENT_CALL_RINGING:
+            LOGI("對方響鈴: %s", prm ? prm : "");
+            break;
+        case BEVENT_CALL_ANSWERED:
+            LOGI("通話接通: %s", prm ? prm : "");
+            break;
+        case BEVENT_CALL_CLOSED:
+            LOGI("通話結束: %s", prm ? prm : "");
+            break;
+        default:
+            break;
     }
 }
+
 
 typedef struct {
     char *path;
