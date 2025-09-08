@@ -6,6 +6,8 @@ import android.os.IBinder
 import android.util.Log
 import androidx.annotation.Keep
 import io.flutter.plugin.common.MethodChannel
+import android.media.AudioManager
+
 
 class BaresipService : Service() {
 
@@ -29,6 +31,9 @@ class BaresipService : Service() {
             "Start" -> {
                 if (!isServiceRunning) {
                     Log.d("Baresip", "Starting baresip service")
+                      val am = getSystemService(AUDIO_SERVICE) as AudioManager
+                am.mode = AudioManager.MODE_IN_COMMUNICATION
+                am.isSpeakerphoneOn = true   // true = 擴音，false = 聽筒
                     isServiceRunning = true
                     val filesPath = filesDir.absolutePath
                     Thread {

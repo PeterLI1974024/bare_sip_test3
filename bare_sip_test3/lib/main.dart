@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart'; // 🔑 新增
 
 void main() => runApp(const MaterialApp(home: Demo()));
 
@@ -11,8 +12,19 @@ class Demo extends StatefulWidget {
 
 class _DemoState extends State<Demo> {
   static const _channel = MethodChannel("baresip");
-
   String log = "";
+
+  Future<void> _checkMicPermission() async {
+    final status = await Permission.microphone.request();
+    if (status.isGranted) {
+      setState(() => log += "麥克風權限允許 ✅\n");
+    } else if (status.isDenied) {
+      setState(() => log += "麥克風權限被拒絕 ❌\n");
+    } else if (status.isPermanentlyDenied) {
+      setState(() => log += "麥克風權限永久拒絕，請去設定開啟 ⚠️\n");
+      openAppSettings();
+    }
+  }
 
   Future<void> _startNative() async {
     try {
@@ -54,8 +66,7 @@ class _DemoState extends State<Demo> {
 
   Future<void> _call() async {
     try {
-      final ret = await _channel.invokeMethod<num>("call_connect", {"target": "sip:2205@e003510"});
-
+      final ret = await _channel.invokeMethod<num>("call_connect", {"target": "sip:2205@e003529"});
       setState(() => log += "call_connect result=$ret\n");
     } catch (e) {
       setState(() => log += "call_connect error: $e\n");
@@ -65,13 +76,12 @@ class _DemoState extends State<Demo> {
   @override
   void initState() {
     super.initState();
-    // _testNative(); // 測試呼叫 C 函式
+    _checkMicPermission(); // ✅ 啟動時檢查麥克風
     _startNative();
 
     _channel.setMethodCallHandler((call) async {
       if (call.method == "started") {
         setState(() => log += "== Baresip 已啟動 ==\n");
-        // 等待一秒讓 baresip 完全初始化後再註冊
         await Future.delayed(const Duration(seconds: 1));
         await _register();
       } else if (call.method == "ua_event") {
@@ -88,7 +98,7 @@ class _DemoState extends State<Demo> {
           if (callId != null) log += "   call=$callId\n";
           if (scode != null) log += "   scode=$scode\n";
           if (reason != null) log += "   reason=$reason\n";
-          log += "   raw=$args\n"; // 最後再印原始 map，避免遺漏
+          log += "   raw=$args\n";
         });
       } else if (call.method == "stopped") {
         setState(() => log += "== Baresip 已停止 ==\n");

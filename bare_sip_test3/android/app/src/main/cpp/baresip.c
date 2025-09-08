@@ -98,6 +98,7 @@ void log_loaded_modules(void) {
     }
 }
 
+
 static void event_handler(enum bevent_ev ev, struct bevent *event, void *arg) {
     (void)arg;
     const char *prm = bevent_get_text(event);
@@ -223,6 +224,8 @@ static void *re_thread_main(void *arg) {
     LOGI("baresip_init 成功");
 }
 
+
+
 err = conf_modules();
 if (err) {
     LOGE("conf_modules() failed (%d)", err);
@@ -239,6 +242,7 @@ if (err) {
     LOGI("ua_init 成功");
 }
     err = bevent_register(event_handler, NULL);
+    call_service_void_method("started");
 
 
     LOGI("baresip ready, initialization complete");
@@ -282,7 +286,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 }
 
 JNIEXPORT void JNICALL
-Java_com_tutpro_baresip_Api_baresipStart(
+Java_com_tutpro_baresip_BaresipService_baresipStart(
         JNIEnv *env, jobject thiz,
         jstring jPath, jstring jAddrs,
         jint jLogLevel, jstring jSoftware) {
