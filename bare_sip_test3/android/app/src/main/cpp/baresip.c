@@ -125,6 +125,47 @@ static void event_handler(enum bevent_ev ev, struct bevent *event, void *arg) {
         case BEVENT_CALL_ANSWERED:
             LOGI("通話接通: %s", prm ? prm : "");
             break;
+case BEVENT_CALL_ESTABLISHED: {
+    LOGI("通話已建立，準備啟動音訊, call=%p", call);
+
+    if (!call) {
+        LOGE("call=NULL, 無法啟動音訊");
+        break;
+    }
+
+    // 🔎 印出 negotiated codec
+    struct audio *a = call_audio(call);
+    const struct aucodec *ac_tx = audio_codec(a, true);
+    const struct aucodec *ac_rx = audio_codec(a, false);
+    if (ac_tx && ac_rx) {
+        LOGI("Negotiated codec: TX=%s/%u/%u, RX=%s/%u/%u",
+             ac_tx->name, ac_tx->srate, ac_tx->ch,
+             ac_rx->name, ac_rx->srate, ac_rx->ch);
+    } else {
+        LOGE("No codec negotiated!");
+    }
+
+    LOGI("call_audio(call)=%p", a);
+
+    if (!a) {
+        LOGE("call_audio() 回傳 NULL");
+        break;
+    }
+
+    int started = audio_started(a);
+    LOGI("audio_started(a)=%d", started);
+
+    if (!started) {
+        LOGI("呼叫 audio_update() 來開啟音訊 (mic+speaker)");
+        audio_update(a);
+        LOGI("audio_update() 已呼叫完成");
+    } else {
+        LOGI("音訊已經在跑，無需再啟動");
+    }
+    break;
+}
+
+
         case BEVENT_CALL_CLOSED:
             LOGI("通話結束: %s", prm ? prm : "");
             break;
