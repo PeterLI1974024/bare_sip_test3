@@ -1,0 +1,38 @@
+{
+  "buildFiles": [
+    "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/src/main/cpp/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/peterlitwm/Library/Android/sdk/cmake/3.18.1/bin/ninja",
+      "-C",
+      "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/RelWithDebInfo/3s5o3s3z/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/peterlitwm/Library/Android/sdk/cmake/3.18.1/bin/ninja",
+    "-C",
+    "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/RelWithDebInfo/3s5o3s3z/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "baresip::@6890427a1f51a3e7e1df": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "baresip",
+      "output": "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/RelWithDebInfo/3s5o3s3z/obj/arm64-v8a/libbaresip.so",
+      "runtimeFiles": []
+    }
+  },
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/Users/peterlitwm/Library/Android/sdk/ndk/23.1.7779620/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [
+    "c"
+  ],
+  "cppFileExtensions": []
+}

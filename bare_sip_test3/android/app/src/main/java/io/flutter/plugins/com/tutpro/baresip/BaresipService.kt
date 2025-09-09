@@ -26,6 +26,15 @@ class BaresipService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+       override fun onCreate() {
+        super.onCreate()
+        Log.d("Baresip", "Service onCreate -> 設定 AudioManager")
+
+        val am = getSystemService(AUDIO_SERVICE) as AudioManager
+        am.mode = AudioManager.MODE_IN_COMMUNICATION
+        am.isSpeakerphoneOn = true   // true = 擴音，false = 聽筒
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             "Start" -> {

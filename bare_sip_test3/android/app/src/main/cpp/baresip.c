@@ -7,10 +7,13 @@
 #include <re.h>
 #include <baresip.h>
 #include <android/log.h>
+#include <aaudio/AAudio.h>
+
 
 #define LOG_TAG "baresip_jni"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+
 
 
 
@@ -137,6 +140,7 @@ case BEVENT_CALL_ESTABLISHED: {
     struct audio *a = call_audio(call);
     const struct aucodec *ac_tx = audio_codec(a, true);
     const struct aucodec *ac_rx = audio_codec(a, false);
+    
     if (ac_tx && ac_rx) {
         LOGI("Negotiated codec: TX=%s/%u/%u, RX=%s/%u/%u",
              ac_tx->name, ac_tx->srate, ac_tx->ch,
@@ -151,6 +155,7 @@ case BEVENT_CALL_ESTABLISHED: {
         LOGE("call_audio() 回傳 NULL");
         break;
     }
+    
 
     int started = audio_started(a);
     LOGI("audio_started(a)=%d", started);

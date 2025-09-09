@@ -1,0 +1,3 @@
+# ninja log v5
+0	226	1757389514	CMakeFiles/baresip.dir/baresip.c.o	e3c96962016186fa
+226	495	1757389514	/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/RelWithDebInfo/3s5o3s3z/obj/arm64-v8a/libbaresip.so	45d50e2f13b86fb9

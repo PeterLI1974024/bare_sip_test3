@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/Debug/5p2f63y6/obj/arm64-v8a/libbaresip.so"
+			"path" : "/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/build/app/intermediates/cxx/RelWithDebInfo/3s5o3s3z/obj/arm64-v8a/libbaresip.so"
 		}
 	],
 	"backtrace" : 1,
@@ -63,7 +63,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fno-limit-debug-info  -fPIC"
+					"fragment" : "-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -O2 -g -DNDEBUG -fPIC"
 				}
 			],
 			"defines" : 
@@ -129,6 +129,11 @@
 			{
 				"backtrace" : 3,
 				"fragment" : "-laaudio",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lopensles",
 				"role" : "libraries"
 			},
 			{

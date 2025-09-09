@@ -1,0 +1,3 @@
+/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/RelWithDebInfo/3s5o3s3z/arm64-v8a/CMakeFiles/rebuild_cache.dir
+/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/RelWithDebInfo/3s5o3s3z/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/peterlitwm/Development/bare_sip_test3/bare_sip_test3/android/app/.cxx/RelWithDebInfo/3s5o3s3z/arm64-v8a/CMakeFiles/baresip.dir

@@ -7,6 +7,10 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import com.tutpro.baresip.Api
 import com.tutpro.baresip.BaresipService
+import java.io.File
+import java.io.InputStream
+
+
 
 class MainActivity : FlutterActivity() {
 
@@ -15,6 +19,7 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+    copyConfigFromAssets(this)
 
         channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "baresip")
         BaresipService.eventChannel = channel
@@ -105,6 +110,21 @@ class MainActivity : FlutterActivity() {
             }
         }
     }
+
+    
+private fun copyConfigFromAssets(context: android.content.Context) {
+    val assetManager = context.assets
+val inputStream = context.assets.open("config")
+    val outFile = File(context.filesDir, "config")        // 寫到 /data/user/0/.../files/config
+
+    if (!outFile.exists()) { // 避免覆蓋使用者改過的
+        inputStream.use { input: InputStream ->
+            outFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+    }
+}
 
     fun started() {
         Log.d("Baresip", "native signalled baresip started")

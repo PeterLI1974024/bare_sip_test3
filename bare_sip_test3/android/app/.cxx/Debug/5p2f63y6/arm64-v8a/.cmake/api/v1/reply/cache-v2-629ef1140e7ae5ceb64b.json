@@ -1263,7 +1263,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "general;android;general;aaudio;general;lib_baresip;general;lib_re;general;lib_ssl;general;lib_crypto;general;lib_opus;general;lib_spandsp;general;lib_g722_1;general;lib_g729;general;lib_codec2;general;lib_amrnb;general;lib_amrwb;general;lib_amrwbenc;general;lib_zrtpcppcore;general;lib_sndfile;general;z;general;log;general;c++_shared;general;c++_static;"
+			"value" : "general;android;general;aaudio;general;opensles;general;lib_baresip;general;lib_re;general;lib_ssl;general;lib_crypto;general;lib_opus;general;lib_spandsp;general;lib_g722_1;general;lib_g729;general;lib_codec2;general;lib_amrnb;general;lib_amrwb;general;lib_amrwbenc;general;lib_zrtpcppcore;general;lib_sndfile;general;z;general;log;general;c++_shared;general;c++_static;"
 		},
 		{
 			"name" : "baresip_SOURCE_DIR",
