@@ -87,8 +87,9 @@ class _DemoState extends State<Demo> {
       } else if (call.method == "ua_event") {
         final args = Map<String, dynamic>.from(call.arguments as Map);
         final event = args["event"];
-        final ua = args["ua"];
-        final callId = args["call"];
+        final ua = args["uap"];
+        final callId = args["callp"];
+
         final scode = args["scode"];
         final reason = args["reason"];
 
