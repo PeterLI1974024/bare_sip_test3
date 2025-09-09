@@ -95,9 +95,6 @@ class MainActivity : FlutterActivity() {
     val resultCode = Api.testNative(value)
     result.success(resultCode)
 }
-
-
-
                 "call_connect" -> {
                     val target = call.argument<String>("target")
                         ?: return@setMethodCallHandler result.error("ARG", "missing target", null)

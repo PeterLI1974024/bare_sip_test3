@@ -20,6 +20,10 @@ module tls.so
 # 最小音頻支援
 module g711.so
 module aubridge.so
+module aaudio.so
+module gzrtp.so
+
+
 
 # 基本應用模組
 module_app account.so
