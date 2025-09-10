@@ -71,6 +71,8 @@ class MainActivity : FlutterActivity() {
             }
             // 🔹 Proxy 放 outbound
             append(";outbound=\"sip:$proxy;transport=tcp\"")
+                append(";sipnat=outbound")
+
         }
 
         Log.d("Baresip", "[Kotlin] 準備 ua_alloc, uri=$uri")
