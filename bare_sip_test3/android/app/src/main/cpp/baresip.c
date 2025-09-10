@@ -114,6 +114,7 @@ static void event_handler(enum bevent_ev ev, struct bevent *event, void *arg) {
     const char *prm = bevent_get_text(event);
     struct ua *ua = bevent_get_ua(event);
     struct call *call = bevent_get_call(event);
+    const struct sip_msg *msg = bevent_get_msg(event);
 
     __android_log_print(ANDROID_LOG_INFO, "JNI_TEST",
                         "bevent: ev=%d, prm=%s, ua=%p, call=%p",
@@ -128,16 +129,26 @@ static void event_handler(enum bevent_ev ev, struct bevent *event, void *arg) {
             LOGI("REGISTER FAIL (%s)", prm ? prm : "");
             break;
 
-case BEVENT_SIPSESS_CONN: {
-    struct sip_msg *msg = (struct sip_msg *)event;
-    if (!msg) {
-        LOGE("📡 SIPSESS_CONN: msg=NULL");
-        break;
-    }
-    ua = uag_find_msg(msg);
-    LOGI("📡 uag_find_msg() = %p", ua);
-    break;
-}
+        case BEVENT_SIPSESS_CONN: {
+            // 用 msg 嘗試找對應 UA
+            ua = uag_find_msg(msg);
+
+            // 還沒有正式 call，用 msg pointer 暫存
+            call = (struct call *)msg;
+
+            if (msg) {
+                char from_buf[256];
+                pl_strcpy(&msg->from.auri, from_buf, sizeof(from_buf));
+
+                LOGI("📡 SIPSESS_CONN: prm=%s, from=%s, ua=%p, call=%p",
+                     prm ? prm : "", from_buf, ua, call);
+            } else {
+                LOGI("📡 SIPSESS_CONN: prm=%s, ua=%p, call=%p (msg=NULL)",
+                     prm ? prm : "", ua, call);
+            }
+            break;
+        }
+
         case BEVENT_CALL_INCOMING:
             LOGI("📞 收到來電: %s", prm ? prm : "");
             g_current_call = call;   // 暫存 call pointer
@@ -195,6 +206,7 @@ case BEVENT_SIPSESS_CONN: {
             break;
     }
 }
+
 
 
 typedef struct {
