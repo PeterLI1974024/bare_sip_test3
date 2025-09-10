@@ -179,11 +179,11 @@ case BEVENT_CALL_ESTABLISHED: {
     }
 }
 
-
 typedef struct {
     char *path;
     char *software;
 } StartArgs;
+
 
 
 
@@ -324,6 +324,42 @@ out:
     free(a);
     return NULL;
 }
+
+JNIEXPORT void JNICALL
+Java_com_tutpro_baresip_Api_call_1hangup(JNIEnv *env, jclass cls, jlong callPtr) {
+    (void)env; (void)cls;
+    struct call *call = (struct call *)(intptr_t)callPtr;
+    if (!call) {
+        LOGE("call_hangup: call=NULL");
+        return;
+    }
+
+    LOGI("call_hangup: 掛斷通話 call=%p", call);
+
+    re_thread_enter();
+    call_hangup(call, 0, NULL);   // 0 = 正常掛斷，NULL = 沒有理由字串
+    re_thread_leave();
+}
+
+JNIEXPORT jint JNICALL
+Java_com_tutpro_baresip_Api_call_1answer(JNIEnv *env, jclass cls, jlong callPtr, jint videoMode) {
+    (void)env; (void)cls;
+    struct call *call = (struct call *)(intptr_t)callPtr;
+    if (!call) {
+        LOGE("call_answer: call=NULL");
+        return -1;
+    }
+
+    LOGI("call_answer: 接聽通話 call=%p, videoMode=%d", call, videoMode);
+
+    re_thread_enter();
+    int err = call_answer(call, 200, (enum vidmode)videoMode);  // 200=OK
+    re_thread_leave();
+
+    return err;
+}
+
+
 
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {

@@ -12,6 +12,10 @@ object Api {
     external fun uag_enable_sip_trace(on: Boolean)
     external fun testNative(value: Int): Int
     external fun baresipStart(path: String, addrs: String, logLevel: Int, software: String)
+    external fun call_answer(callp: Long, video: Int): Int
+    external fun call_hangup(callp: Long)
+
+
 
 
 }
