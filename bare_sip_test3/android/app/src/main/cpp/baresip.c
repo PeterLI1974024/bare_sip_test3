@@ -337,6 +337,13 @@ out:
     return NULL;
 }
 
+JNIEXPORT jlong JNICALL
+Java_com_tutpro_baresip_Api_getCurrentCall(JNIEnv *env, jclass cls) {
+    (void)env; (void)cls;
+    return (jlong)(intptr_t)get_current_call();
+}
+
+
 JNIEXPORT void JNICALL
 Java_com_tutpro_baresip_Api_call_1hangup(JNIEnv *env, jclass cls, jlong callPtr) {
     (void)env; (void)cls;

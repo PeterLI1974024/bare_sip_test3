@@ -14,9 +14,6 @@ object Api {
     external fun baresipStart(path: String, addrs: String, logLevel: Int, software: String)
     external fun call_answer(callp: Long, video: Int): Int
     external fun call_hangup(callp: Long)
-
-
-
-
+    external fun getCurrentCall(): Long
 }
 
