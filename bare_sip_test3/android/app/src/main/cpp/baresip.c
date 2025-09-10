@@ -14,6 +14,12 @@
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
+static struct call *g_current_call = NULL;
+
+struct call *get_current_call(void) {
+    return g_current_call;
+}
+
 
 
 
@@ -128,8 +134,13 @@ static void event_handler(enum bevent_ev ev, struct bevent *event, void *arg) {
         case BEVENT_CALL_ANSWERED:
             LOGI("通話接通: %s", prm ? prm : "");
             break;
+        case BEVENT_CALL_INCOMING:
+            LOGI("收到來電: %s", prm ? prm : "");
+            g_current_call = call;   // 暫存 call pointer
+            break;    
 case BEVENT_CALL_ESTABLISHED: {
     LOGI("通話已建立，準備啟動音訊, call=%p", call);
+    g_current_call = call;
 
     if (!call) {
         LOGE("call=NULL, 無法啟動音訊");
@@ -173,6 +184,7 @@ case BEVENT_CALL_ESTABLISHED: {
 
         case BEVENT_CALL_CLOSED:
             LOGI("通話結束: %s", prm ? prm : "");
+             g_current_call = NULL; 
             break;
         default:
             break;
