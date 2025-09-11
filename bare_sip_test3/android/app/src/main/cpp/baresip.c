@@ -129,25 +129,37 @@ static void event_handler(enum bevent_ev ev, struct bevent *event, void *arg) {
             LOGI("REGISTER FAIL (%s)", prm ? prm : "");
             break;
 
-        case BEVENT_SIPSESS_CONN: {
-            // 用 msg 嘗試找對應 UA
-            ua = uag_find_msg(msg);
+      case BEVENT_SIPSESS_CONN: {
+    // 用 msg 嘗試找對應 UA
+    ua = uag_find_msg(msg);
 
-            // 還沒有正式 call，用 msg pointer 暫存
-            call = (struct call *)msg;
+    // 還沒有正式 call，用 msg pointer 暫存
+    call = (struct call *)msg;
 
-            if (msg) {
-                char from_buf[256];
-                pl_strcpy(&msg->from.auri, from_buf, sizeof(from_buf));
+    if (msg) {
+        char from_buf[256], to_buf[256], ruri_buf[256], callid_buf[256];
 
-                LOGI("📡 SIPSESS_CONN: prm=%s, from=%s, ua=%p, call=%p",
-                     prm ? prm : "", from_buf, ua, call);
-            } else {
-                LOGI("📡 SIPSESS_CONN: prm=%s, ua=%p, call=%p (msg=NULL)",
-                     prm ? prm : "", ua, call);
-            }
-            break;
-        }
+        pl_strcpy(&msg->from.auri, from_buf, sizeof(from_buf));
+        pl_strcpy(&msg->to.auri,   to_buf,   sizeof(to_buf));
+        pl_strcpy(&msg->ruri,      ruri_buf, sizeof(ruri_buf));
+        pl_strcpy(&msg->callid,    callid_buf, sizeof(callid_buf));
+
+        LOGI("📡 SIPSESS_CONN -------------------");
+        LOGI("👉 prm     : %s", prm ? prm : "");
+        LOGI("👉 UA ptr  : %p", ua);
+        LOGI("👉 Call ptr: %p", call);
+        LOGI("👉 From    : %s", from_buf);
+        LOGI("👉 To      : %s", to_buf);
+        LOGI("👉 Req-URI : %s", ruri_buf);
+        LOGI("👉 Call-ID : %s", callid_buf);
+        LOGI("------------------------------------");
+    } else {
+        LOGI("📡 SIPSESS_CONN: prm=%s, ua=%p, call=%p (msg=NULL)",
+             prm ? prm : "", ua, call);
+    }
+    break;
+}
+
 
         case BEVENT_CALL_INCOMING:
             LOGI("📞 收到來電: %s", prm ? prm : "");

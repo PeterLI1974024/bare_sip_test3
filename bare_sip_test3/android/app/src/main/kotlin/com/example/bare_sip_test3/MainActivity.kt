@@ -58,32 +58,39 @@ class MainActivity : FlutterActivity() {
     val authPass = call.argument<String>("authPass") ?: ""
 
     Log.d("Baresip", "[Kotlin] Flutter 傳入參數 user=$user, domain=$domain, proxy=$proxy, authUser=$authUser, authPass=$authPass")
+if (uaPtr == 0L) {
+    val uri = buildString {
+        // ✅ AOR 正確組成：使用帳號 + domain
+        append("<sip:$user@$domain>")
+
+        if (authUser.isNotEmpty()) {
+            append(";auth_user=$authUser")
+        }
+        if (authPass.isNotEmpty()) {
+            append(";auth_pass=$authPass")
+        }
+
+        // ✅ Proxy 放 outbound，強迫 INVITE 經由 PBX
+        // 注意 proxy 要寫完整 host:port
+        append(";outbound=\"sip:$proxy;transport=tcp\"")
+
+        // ✅ NAT traversal，讓 PBX 不直接用 Contact IP
+
+
+        // ✅ refresh interval
+
+    }
+
+    Log.d("Baresip", "[Kotlin] 準備 ua_alloc, uri=$uri")
+    uaPtr = Api.ua_alloc(uri)
+    Log.d("Baresip", "[Kotlin] ua_alloc 回傳 uaPtr=$uaPtr")
 
     if (uaPtr == 0L) {
-        val uri = buildString {
-            // 🔹 AOR 正確組成 (From/To)
-            append("<sip:$user@$domain>")
-            if (authUser.isNotEmpty()) {
-                append(";auth_user=$authUser")
-            }
-            if (authPass.isNotEmpty()) {
-                append(";auth_pass=$authPass")
-            }
-            // 🔹 Proxy 放 outbound
-            append(";outbound=\"sip:$proxy;transport=tcp\"")
-                append(";sipnat=outbound")
-
-        }
-
-        Log.d("Baresip", "[Kotlin] 準備 ua_alloc, uri=$uri")
-        uaPtr = Api.ua_alloc(uri)
-        Log.d("Baresip", "[Kotlin] ua_alloc 回傳 uaPtr=$uaPtr")
-
-        if (uaPtr == 0L) {
-            Log.e("Baresip", "[Kotlin] ua_alloc 失敗")
-            return@setMethodCallHandler result.error("UA", "ua_alloc failed", null)
-        }
+        Log.e("Baresip", "[Kotlin] ua_alloc 失敗")
+        return@setMethodCallHandler result.error("UA", "ua_alloc failed", null)
     }
+}
+
 
     Log.d("Baresip", "[Kotlin] 呼叫 ua_register, uaPtr=$uaPtr")
     val code = Api.ua_register(uaPtr)

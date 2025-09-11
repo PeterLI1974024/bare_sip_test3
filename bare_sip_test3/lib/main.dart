@@ -51,7 +51,7 @@ class _DemoState extends State<Demo> {
       final ret = await _channel.invokeMethod<num>("ua_register", {
         "user": "2204",
         "domain": "e003529",
-        "proxy": "175.99.74.33:5060",
+        "proxy": "stage.twmfspbx.taiwanmobile.com",
         "authUser": "2204",
         "authPass": "Twm09350935",
       });
@@ -66,7 +66,10 @@ class _DemoState extends State<Demo> {
 
   Future<void> _call() async {
     try {
-      final ret = await _channel.invokeMethod<num>("call_connect", {"target": "sip:2205@e003529"});
+      final ret = await _channel.invokeMethod<num>(
+        "call_connect",
+        {"target": "sip:2205@e003529"},
+      );
       setState(() => log += "call_connect result=$ret\n");
     } catch (e) {
       setState(() => log += "call_connect error: $e\n");
