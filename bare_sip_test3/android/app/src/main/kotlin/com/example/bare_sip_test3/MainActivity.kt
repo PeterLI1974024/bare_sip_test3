@@ -111,6 +111,27 @@ if (uaPtr == 0L) {
                     Log.d("Baresip", "ua_connect($target) => $code")
                     result.success(code)
                 }
+             "call_answer" -> {
+    val callIdStr = call.argument<String>("callp")
+        ?: return@setMethodCallHandler result.error("ARG", "missing callp", null)
+    val callPtr = callIdStr.toLong()
+
+    Log.d("Baresip", "call_answer($callPtr)")
+    val code = Api.call_answer(callPtr, 0) // 0 = VIDMODE_OFF
+    result.success(code)
+}
+
+// ✅ 掛斷電話
+"call_hangup" -> {
+    val callIdStr = call.argument<String>("callp")
+        ?: return@setMethodCallHandler result.error("ARG", "missing callp", null)
+    val callPtr = callIdStr.toLong()
+
+    Log.d("Baresip", "call_hangup($callPtr)")
+    val code = Api.call_hangup(callPtr)
+    result.success(code)
+}
+
 
                 else -> result.notImplemented()
             }
