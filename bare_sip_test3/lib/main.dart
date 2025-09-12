@@ -1,3 +1,4 @@
+import 'package:bare_sip_test3/callscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_callkit_incoming/entities/call_event.dart';
@@ -179,11 +180,24 @@ class _DemoState extends State<Demo> {
       switch (event.event) {
         case Event.actionCallAccept:
           debugPrint("📞 接聽 callId=${event.body['id']}");
+          await FlutterCallkitIncoming.endCall(event.body['id']);
+
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CallScreen(callId: event.body['id']),
+              ),
+            );
+          }
+
           await _channel.invokeMethod("call_answer", {"callp": event.body['id']});
           break;
 
         case Event.actionCallDecline:
           debugPrint("❌ 掛斷 callId=${event.body['id']}");
+          await FlutterCallkitIncoming.endCall(event.body['id']);
+
           await _channel.invokeMethod("call_hangup", {"callp": event.body['id']});
           break;
 
@@ -192,6 +206,8 @@ class _DemoState extends State<Demo> {
           break;
 
         case Event.actionCallEnded:
+          await FlutterCallkitIncoming.endCall(event.body['id']);
+
           debugPrint("📴 通話結束 callId=${event.body['id']}");
           break;
 
