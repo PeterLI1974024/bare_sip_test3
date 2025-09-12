@@ -85,10 +85,15 @@ class BaresipService : Service() {
     val callPtr = Api.getCurrentCall() // 你需要在 native 端實作 getCurrentCall() 回傳 call 指標
     if (callPtr != 0L) {
         Log.i("BaresipService", "📞 收到來電 call=$callPtr")
+        
+        val args = mapOf("event" to "incoming_call", "callp" to callPtr)
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            eventChannel?.invokeMethod("ua_event", args)
+        }
 
         // TODO: 這裡可以彈通知或直接呼叫 UI
         // 例如自動接聽：
-        Api.call_answer(callPtr, 0)  // 0 = VIDMODE_OFF (語音通話)
+        //Api.call_answer(callPtr, 0)  // 0 = VIDMODE_OFF (語音通話)
     }
 }
 

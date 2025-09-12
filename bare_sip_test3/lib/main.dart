@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_callkit_incoming/entities/call_event.dart';
+import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:permission_handler/permission_handler.dart'; // 🔑 新增
 
 void main() => runApp(const MaterialApp(home: Demo()));
@@ -21,8 +24,26 @@ class _DemoState extends State<Demo> {
     } else if (status.isDenied) {
       setState(() => log += "麥克風權限被拒絕 ❌\n");
     } else if (status.isPermanentlyDenied) {
-      setState(() => log += "麥克風權限永久拒絕，請去設定開啟 ⚠️\n");
+      setState(() => log += "麥克風權限永久拒絕，請去設定開啟  ⚠️\n");
       openAppSettings();
+    }
+  }
+
+  Future<void> _checkNotificationPermission() async {
+    // 只在 Android 13+ 需要檢查
+    if (await Permission.notification.isDenied || await Permission.notification.isPermanentlyDenied) {
+      final status = await Permission.notification.request();
+
+      if (status.isGranted) {
+        debugPrint("🔔 通知權限允許 ✅");
+      } else if (status.isDenied) {
+        debugPrint("❌ 通知權限被拒絕");
+      } else if (status.isPermanentlyDenied) {
+        debugPrint("⚠️ 通知權限永久拒絕，請去設定手動開啟");
+        openAppSettings();
+      }
+    } else {
+      debugPrint("🔔 通知權限已允許 (不需再請求)");
     }
   }
 
@@ -79,9 +100,14 @@ class _DemoState extends State<Demo> {
   @override
   void initState() {
     super.initState();
-    _checkMicPermission(); // ✅ 啟動時檢查麥克風
-    _startNative();
+    // Future.delayed(const Duration(seconds: 5), () {
+    //   _showIncomingCallKit("test-12345");
+    // });
 
+    _checkMicPermission(); // ✅ 啟動時檢查麥克風
+    _checkNotificationPermission();
+    _startNative();
+    _setupCallkitListener();
     _channel.setMethodCallHandler((call) async {
       if (call.method == "started") {
         setState(() => log += "== Baresip 已啟動 ==\n");
@@ -91,21 +117,87 @@ class _DemoState extends State<Demo> {
         final args = Map<String, dynamic>.from(call.arguments as Map);
         final event = args["event"];
         final ua = args["uap"];
-        final callId = args["callp"];
-
-        final scode = args["scode"];
-        final reason = args["reason"];
-
+        final callId = args["callp"].toString();
         setState(() {
+          print('ua event=$ua event=$event args=$args');
           log += "== UA Event == $event\n";
-          if (ua != null) log += "   ua=$ua\n";
-          if (callId != null) log += "   call=$callId\n";
-          if (scode != null) log += "   scode=$scode\n";
-          if (reason != null) log += "   reason=$reason\n";
           log += "   raw=$args\n";
         });
+
+        if (event == "incoming_call") {
+          print("進到 incoming_call event, callId=$callId");
+          _showIncomingCallKit(callId);
+        }
       } else if (call.method == "stopped") {
         setState(() => log += "== Baresip 已停止 ==\n");
+      }
+    });
+  }
+
+  Future<void> _showIncomingCallKit(String callId) async {
+    print('有盡到incoming畫面');
+    final params = CallKitParams.fromJson({
+      'id': callId,
+      'nameCaller': '測試用戶 2205',
+      'appName': 'Baresip Demo',
+      'avatar': 'https://i.pravatar.cc/100', // 可換成聯絡人頭像
+      'handle': '2205',
+      'type': 0, // 0 = audio, 1 = video
+      'extra': <String, dynamic>{'userId': '2205'},
+      'headers': <String, dynamic>{},
+      'ios': <String, dynamic>{
+        'iconName': 'CallKitLogo', // iOS AppIcon 名稱
+        'handleType': 'number',
+        'supportsVideo': true,
+        'maximumCallGroups': 2,
+        'maximumCallsPerCallGroup': 1,
+        'audioSessionMode': 'default',
+        'audioSessionActive': true,
+        'audioSessionPreferredSampleRate': 44100.0,
+        'audioSessionPreferredIOBufferDuration': 0.005,
+        'supportsDTMF': true,
+        'supportsHolding': true,
+        'supportsGrouping': false,
+        'supportsUngrouping': false,
+      },
+      'android': <String, dynamic>{
+        'isCustomNotification': true,
+        'ringtonePath': 'system_ringtone_default',
+        'backgroundColor': '#0955fa',
+        'backgroundUrl': 'https://i.pravatar.cc/500',
+        'actionColor': '#4CAF50',
+      }
+    });
+
+    await FlutterCallkitIncoming.showCallkitIncoming(params);
+  }
+
+  Future<void> _setupCallkitListener() async {
+    FlutterCallkitIncoming.onEvent.listen((CallEvent? event) async {
+      if (event == null) return;
+
+      switch (event.event) {
+        case Event.actionCallAccept:
+          debugPrint("📞 接聽 callId=${event.body['id']}");
+          await _channel.invokeMethod("call_answer", {"callp": event.body['id']});
+          break;
+
+        case Event.actionCallDecline:
+          debugPrint("❌ 掛斷 callId=${event.body['id']}");
+          await _channel.invokeMethod("call_hangup", {"callp": event.body['id']});
+          break;
+
+        case Event.actionCallIncoming:
+          debugPrint("📲 來電顯示 callId=${event.body['id']}");
+          break;
+
+        case Event.actionCallEnded:
+          debugPrint("📴 通話結束 callId=${event.body['id']}");
+          break;
+
+        default:
+          debugPrint("⚡ 其他事件: ${event.event}");
+          break;
       }
     });
   }

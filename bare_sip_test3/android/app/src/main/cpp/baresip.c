@@ -211,6 +211,7 @@ static void event_handler(enum bevent_ev ev, struct bevent *event, void *arg) {
 
         case BEVENT_CALL_CLOSED:
             LOGI("通話結束: %s", prm ? prm : "");
+  
             g_current_call = NULL;
             break;
 
