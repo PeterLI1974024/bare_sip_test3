@@ -167,10 +167,9 @@ static void event_handler(enum bevent_ev ev, struct bevent *event, void *arg) {
             call_service_void_method("onIncomingCall");
             break;
 
-        case BEVENT_CALL_OUTGOING:
+   case BEVENT_CALL_OUTGOING:
             LOGI("撥號出去: %s", prm ? prm : "");
             break;
-
         case BEVENT_CALL_RINGING:
             LOGI("對方響鈴: %s", prm ? prm : "");
             break;
@@ -206,12 +205,15 @@ static void event_handler(enum bevent_ev ev, struct bevent *event, void *arg) {
             } else {
                 LOGI("音訊已經在跑，無需再啟動");
             }
+                call_service_void_method("onCallEstablished");
+
             break;
         }
 
         case BEVENT_CALL_CLOSED:
             LOGI("通話結束: %s", prm ? prm : "");
-  
+                        call_service_void_method("onCallClosed");
+
             g_current_call = NULL;
             break;
 

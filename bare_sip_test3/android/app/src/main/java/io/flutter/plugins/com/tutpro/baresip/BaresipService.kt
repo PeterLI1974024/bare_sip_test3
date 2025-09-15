@@ -97,6 +97,32 @@ class BaresipService : Service() {
     }
 }
 
+fun onCallClosed() {
+    Log.i("BaresipService", "📴 通話結束")
+    val args = mapOf("event" to "call_closed")
+    android.os.Handler(android.os.Looper.getMainLooper()).post {
+        eventChannel?.invokeMethod("ua_event", args)
+    }
+}
+
+
+
+
+fun onCallEstablished() {
+    val callPtr = Api.getCurrentCall()
+    Log.i("BaresipService", "✅ 通話已建立 call=$callPtr")
+
+    val args = mapOf(
+        "event" to "call_established",
+        "callp" to callPtr
+    )
+
+    android.os.Handler(android.os.Looper.getMainLooper()).post {
+        eventChannel?.invokeMethod("ua_event", args)
+    }
+}
+
+
 
     @Keep
     @Suppress("unused")

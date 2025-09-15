@@ -17,6 +17,7 @@ class Demo extends StatefulWidget {
 class _DemoState extends State<Demo> {
   static const _channel = MethodChannel("baresip");
   String log = "";
+  final GlobalKey<CallScreenState> callScreenKey = GlobalKey();
 
   Future<void> _checkMicPermission() async {
     final status = await Permission.microphone.request();
@@ -93,6 +94,21 @@ class _DemoState extends State<Demo> {
         {"target": "sip:2205@e003529"},
       );
       setState(() => log += "call_connect result=$ret\n");
+
+      // 🚀 不等 event，直接進到 CallScreen
+      if (context.mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CallScreen(
+              key: callScreenKey,
+              callId: "local-${DateTime.now().millisecondsSinceEpoch}", // 臨時 id
+              isIncoming: false,
+              isCalling: true, // 新增參數，表示撥號中
+            ),
+          ),
+        );
+      }
     } catch (e) {
       setState(() => log += "call_connect error: $e\n");
     }
@@ -128,6 +144,30 @@ class _DemoState extends State<Demo> {
         if (event == "incoming_call") {
           print("進到 incoming_call event, callId=$callId");
           _showIncomingCallKit(callId);
+        } else if (event == "outgoing_call") {
+          final callId = args["callp"].toString(); // ✅ 拿到 call pointer
+          print("📞 去電中 callId=$callId");
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CallScreen(
+                callId: callId,
+                isIncoming: false,
+              ),
+            ),
+          );
+        } else if (event == "call_established") {
+          final realCallId = args["callp"].toString();
+          print("✅ 通話接通 callId=$realCallId");
+
+          callScreenKey.currentState?.markEstablished(realCallId);
+        } else if (event == "call_closed") {
+          debugPrint("📴 通話結束 callId=$callId reason=${args["reason"]}");
+
+          if (context.mounted) {
+            Navigator.pop(context); // ✅ 自動關閉 CallScreen
+          }
         }
       } else if (call.method == "stopped") {
         setState(() => log += "== Baresip 已停止 ==\n");

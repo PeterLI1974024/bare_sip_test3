@@ -3,42 +3,70 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class CallScreen extends StatefulWidget {
-  final String callId;
-  final bool isIncoming; // 🔑 true = 來電, false = 去電
+  final String callId; // 初始 callId (可能是 local id)
+  final bool isIncoming; // true = 來電, false = 去電
+  final bool isCalling; // true = 撥號中, false = 已建立
 
   const CallScreen({
     super.key,
     required this.callId,
     this.isIncoming = false,
+    this.isCalling = false,
   });
 
   @override
-  State<CallScreen> createState() => _CallScreenState();
+  State<CallScreen> createState() => CallScreenState();
 }
 
-class _CallScreenState extends State<CallScreen> {
+class CallScreenState extends State<CallScreen> {
+  late String _callId;
   Timer? _timer;
   int _seconds = 0;
   bool _muted = false;
   bool _speakerOn = true;
-  bool _answered = false; // 🔑 來電是否已接聽
+  bool _answered = false; // 是否已接通
+  String? realCallId; // 🔑 真實 callId (native 回傳)
+  bool _established = false; // 🔑 是否已經通話建立
+
   static const _channel = MethodChannel("baresip");
 
   @override
   void initState() {
     super.initState();
+    _callId = widget.callId; // 🔑 先用初始的
 
-    // 去電馬上開始計時
-    if (!widget.isIncoming) {
-      _startTimer();
+    // 來電 → 等用戶接聽才開始計時
+    // 去電 → 如果 isCalling=true 先顯示「撥號中」，等 call_established 才開始計時
+    // 如果 isCalling=false → 已建立，直接跑計時
+    if (!widget.isIncoming && !widget.isCalling) {
       _answered = true;
+      _startTimer();
     }
+  }
+
+  void updateCallId(String newId) {
+    setState(() {
+      _callId = newId;
+    });
+    debugPrint("🔄 CallScreen 更新 callId=$_callId");
+  }
+
+  // 🔑 外部呼叫（call_established event 觸發）
+  void markEstablished(String callIdFromNative) {
+    setState(() {
+      realCallId = callIdFromNative;
+      _answered = true;
+      _seconds = 0; // 重新從 00:00 開始
+    });
+    _startTimer(); // ✅ 確保開始跑
   }
 
   void _startTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() => _seconds++);
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {
+        _seconds++; // ✅ 每秒遞增
+      });
     });
   }
 
@@ -47,6 +75,8 @@ class _CallScreenState extends State<CallScreen> {
     _timer?.cancel();
     super.dispose();
   }
+
+  String get _currentCallId => realCallId ?? widget.callId;
 
   String _formatDuration(int seconds) {
     final minutes = seconds ~/ 60;
@@ -66,8 +96,8 @@ class _CallScreenState extends State<CallScreen> {
 
   Future<void> _hangUp() async {
     try {
-      await _channel.invokeMethod("call_hangup", {"callp": widget.callId});
-      debugPrint("✅ 已掛斷 callId=${widget.callId}");
+      await _channel.invokeMethod("call_hangup", {"callp": _currentCallId});
+      debugPrint("✅ 已掛斷 callId=$_currentCallId");
     } catch (e) {
       debugPrint("❌ 掛斷失敗: $e");
     } finally {
@@ -77,13 +107,12 @@ class _CallScreenState extends State<CallScreen> {
 
   Future<void> _answer() async {
     try {
-      await _channel.invokeMethod("call_answer", {"callp": widget.callId});
-      debugPrint("✅ 已接聽 callId=${widget.callId}");
+      await _channel.invokeMethod("call_answer", {"callp": _currentCallId});
+      debugPrint("✅ 已接聽 callId=$_currentCallId");
 
       setState(() {
         _answered = true;
       });
-
       _startTimer();
     } catch (e) {
       debugPrint("❌ 接聽失敗: $e");
@@ -94,6 +123,12 @@ class _CallScreenState extends State<CallScreen> {
   Widget build(BuildContext context) {
     final isActive = _answered || !widget.isIncoming;
 
+    final statusText = () {
+      if (!_answered && widget.isIncoming) return "來電中...";
+      if (!_answered && widget.isCalling) return "撥號中...";
+      return _formatDuration(_seconds); // ✅ 一旦接通就直接顯示秒數
+    }();
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -101,30 +136,21 @@ class _CallScreenState extends State<CallScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Spacer(),
-
-            // 頭像
             const CircleAvatar(
               radius: 50,
               backgroundImage: NetworkImage("https://i.pravatar.cc/200"),
             ),
             const SizedBox(height: 16),
-
-            // 名稱
             const Text(
               "測試用戶 2205",
               style: TextStyle(color: Colors.white, fontSize: 24),
             ),
-
-            // 通話狀態 / 計時
             Text(
-              !isActive ? "來電中..." : (_seconds == 0 ? "連線中..." : _formatDuration(_seconds)),
+              statusText,
               style: const TextStyle(color: Colors.grey, fontSize: 16),
             ),
             const Spacer(),
-
-            // 按鈕區塊
             if (!isActive)
-              // 來電未接聽 → 顯示 接聽/掛斷
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -143,7 +169,6 @@ class _CallScreenState extends State<CallScreen> {
                 ],
               )
             else
-              // 已接通 / 去電 → 顯示 靜音/掛斷/擴音
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
