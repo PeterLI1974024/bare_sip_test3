@@ -4,8 +4,13 @@ import 'package:flutter/services.dart';
 
 class CallScreen extends StatefulWidget {
   final String callId;
+  final bool isIncoming; // 🔑 true = 來電, false = 去電
 
-  const CallScreen({super.key, required this.callId});
+  const CallScreen({
+    super.key,
+    required this.callId,
+    this.isIncoming = false,
+  });
 
   @override
   State<CallScreen> createState() => _CallScreenState();
@@ -16,12 +21,22 @@ class _CallScreenState extends State<CallScreen> {
   int _seconds = 0;
   bool _muted = false;
   bool _speakerOn = true;
+  bool _answered = false; // 🔑 來電是否已接聽
   static const _channel = MethodChannel("baresip");
 
   @override
   void initState() {
     super.initState();
-    // 開始計時
+
+    // 去電馬上開始計時
+    if (!widget.isIncoming) {
+      _startTimer();
+      _answered = true;
+    }
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() => _seconds++);
     });
@@ -49,19 +64,36 @@ class _CallScreenState extends State<CallScreen> {
     // TODO: 呼叫 native API 開關擴音
   }
 
-  void _hangUp() async {
+  Future<void> _hangUp() async {
     try {
       await _channel.invokeMethod("call_hangup", {"callp": widget.callId});
       debugPrint("✅ 已掛斷 callId=${widget.callId}");
     } catch (e) {
       debugPrint("❌ 掛斷失敗: $e");
     } finally {
-      if (mounted) Navigator.pop(context); // 回上一頁
+      if (mounted) Navigator.pop(context);
+    }
+  }
+
+  Future<void> _answer() async {
+    try {
+      await _channel.invokeMethod("call_answer", {"callp": widget.callId});
+      debugPrint("✅ 已接聽 callId=${widget.callId}");
+
+      setState(() {
+        _answered = true;
+      });
+
+      _startTimer();
+    } catch (e) {
+      debugPrint("❌ 接聽失敗: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isActive = _answered || !widget.isIncoming;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -83,35 +115,56 @@ class _CallScreenState extends State<CallScreen> {
               style: TextStyle(color: Colors.white, fontSize: 24),
             ),
 
-            // 通話時間
+            // 通話狀態 / 計時
             Text(
-              _seconds == 0 ? "連線中..." : _formatDuration(_seconds),
+              !isActive ? "來電中..." : (_seconds == 0 ? "連線中..." : _formatDuration(_seconds)),
               style: const TextStyle(color: Colors.grey, fontSize: 16),
             ),
             const Spacer(),
 
-            // 控制按鈕
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildCircleButton(
-                  icon: _muted ? Icons.mic_off : Icons.mic,
-                  label: _muted ? "取消靜音" : "靜音",
-                  onTap: _toggleMute,
-                ),
-                _buildCircleButton(
-                  icon: Icons.call_end,
-                  label: "掛斷",
-                  color: Colors.red,
-                  onTap: _hangUp,
-                ),
-                _buildCircleButton(
-                  icon: _speakerOn ? Icons.volume_up : Icons.hearing,
-                  label: _speakerOn ? "擴音" : "聽筒",
-                  onTap: _toggleSpeaker,
-                ),
-              ],
-            ),
+            // 按鈕區塊
+            if (!isActive)
+              // 來電未接聽 → 顯示 接聽/掛斷
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildCircleButton(
+                    icon: Icons.call,
+                    label: "接聽",
+                    color: Colors.green,
+                    onTap: _answer,
+                  ),
+                  _buildCircleButton(
+                    icon: Icons.call_end,
+                    label: "掛斷",
+                    color: Colors.red,
+                    onTap: _hangUp,
+                  ),
+                ],
+              )
+            else
+              // 已接通 / 去電 → 顯示 靜音/掛斷/擴音
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildCircleButton(
+                    icon: _muted ? Icons.mic_off : Icons.mic,
+                    label: _muted ? "取消靜音" : "靜音",
+                    onTap: _toggleMute,
+                  ),
+                  _buildCircleButton(
+                    icon: Icons.call_end,
+                    label: "掛斷",
+                    color: Colors.red,
+                    onTap: _hangUp,
+                  ),
+                  _buildCircleButton(
+                    icon: _speakerOn ? Icons.volume_up : Icons.hearing,
+                    label: _speakerOn ? "擴音" : "聽筒",
+                    onTap: _toggleSpeaker,
+                  ),
+                ],
+              ),
             const SizedBox(height: 40),
           ],
         ),
